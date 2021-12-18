@@ -1,0 +1,12 @@
+# Python
+*.pyc
+
+# VS code 
+.vscode/
+
+# Environments
+.venv/
+venv/
+
+
+ 
