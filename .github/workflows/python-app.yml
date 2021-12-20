@@ -5,10 +5,15 @@ name: Python application
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev_CD_implementation ]
   pull_request:
+<<<<<<< HEAD
     branches: [ main ]
 
+=======
+    branches: [ main , dev_CD_implementation]
+    
+>>>>>>> added dev branch to python-app.yml
 jobs:
   build:
 
