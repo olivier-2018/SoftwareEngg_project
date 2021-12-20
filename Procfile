@@ -1,1 +1,1 @@
-web: gunincorn --chdir api_src audio_MNIST_api:app
+web gunincorn --pythonpath api_src audio_MNIST_api:app
