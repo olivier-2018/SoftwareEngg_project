@@ -13,5 +13,12 @@ REST API development in Machine Learning applications
 - The ML model selected for this project is the audio MNIST ([Dataset](https://www.kaggle.com/sripaadsrinivasan/audio-mnist), [code](https://colab.research.google.com/github/AdvancedNLP/audio_mnist/blob/exercise/audio_mnist_tcn.ipynb)) which identifies digits from audio inputs.  
 - The API takes as input an audio signal (from file or captured audio) and returns the corresponding digit.  
  
+## Getting started:  
+- I recommend using the virtualenv package to create a virtual python environment: sudo apt-get install python-virtualenv
+- Clone the repository: git clone git@github.com:olivier-2018/SoftwareEngg_project.git
+- Create a virtual environment within the repo: virtualenv venv
+- Activate the virtual environment: source venv/bin/activate
+- Install dependencies: pip install -r requirements.txt
+- Launch the API locally: flask run
 
 
