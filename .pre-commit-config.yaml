@@ -1,0 +1,31 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+    -   id: check-yaml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+-   repo: local
+    hooks:
+    -   id: black
+        name: black
+        language: python
+        entry: black
+        types: [python]
+    -   id: autoflake
+        name: autoflake
+        entry: >-
+          autoflake
+          --in-place
+          --remove-all-unused-imports
+          --remove-unused-variables
+        language: python
+        types: [python]
+    -   id: flake8
+        name: flake8
+        language: system
+        entry: >-
+          flake8
+          --max-line-length=150
+          --ignore=F403,F405,F841,W503
+        types: [python]
