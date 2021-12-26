@@ -20,3 +20,7 @@ REST API development in Machine Learning applications
 - Activate the virtual environment: source venv/bin/activate
 - Install dependencies: pip install -r requirements.txt
 - Launch the API locally: flask run
+- Set Flask environment variables, in a shell type:
+   export FLASK_APP=run.py
+   export FLASK_ENV=development
+- Start API with "flask run" in cmd shell

@@ -1,3 +1,3 @@
 import sys
 
-sys.path.append("api_src")
+sys.path.append("src")

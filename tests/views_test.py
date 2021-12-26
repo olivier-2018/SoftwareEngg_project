@@ -1,4 +1,4 @@
-from audio_MNIST_api import index
+from api_src.views import index
 
 
 def test_index():
