@@ -7,3 +7,6 @@
 # Environments
 .venv/
 venv/
+
+# audio files
+*.wav
