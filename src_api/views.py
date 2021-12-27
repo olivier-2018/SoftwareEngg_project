@@ -26,6 +26,7 @@ def index():
 
     app.logger.info("starting web page")
     prediction = ""
+
     if request.method == "POST":
         print("FORM DATA RECEIVED")
 

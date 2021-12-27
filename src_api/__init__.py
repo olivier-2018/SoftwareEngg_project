@@ -3,6 +3,8 @@ import os
 
 app = Flask(__name__, template_folder="../templates")
 
+from src_api import views
+
 # logging.basicConfig(level=logging.DEBUG)
 # logging.basicConfig(filename='app.log', level=logging.DEBUG,format=’%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s’)
 
