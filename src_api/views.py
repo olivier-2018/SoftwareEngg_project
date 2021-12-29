@@ -5,26 +5,21 @@ import librosa
 import numpy as np
 from werkzeug.utils import secure_filename
 import tensorflow
+import logging
 
 
-# logging.basicConfig(level=logging.DEBUG)
-# # logging.basicConfig(filename='app.log', level=logging.DEBUG,format=’%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s’)
-
-# app.logger.info("ROOT FOLDER: "+app.root_path)
-# APP_FOLDER = os.path.abspath(os.path.join(app.root_path, os.pardir))
-# app.logger.info("APP FOLDER: "+APP_FOLDER)
-# UPLOAD_FOLDER = os.path.join(app.root_path, '../static/client/wav')
-# # UPLOAD_FOLDER = app.instance_path+"/../static/client/wav/"
-# app.logger.info("UPLOAD FOLDER: "+UPLOAD_FOLDER)
-
-# app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-# app.config["ALLOWED_EXTENSIONS"] = set(["wav"])
+logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(filename='app.log', level=logging.DEBUG,format=’%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s’)
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
 
-    app.logger.info("starting web page")
+    app.logger.info("===================== starting web page")
+
+    app.logger.info("APP FOLDER: " + app.config["APP_FOLDER"])
+    app.logger.info("UPLOAD FOLDER: " + app.config["UPLOAD_FOLDER"])
+
     prediction = ""
 
     if request.method == "POST":
