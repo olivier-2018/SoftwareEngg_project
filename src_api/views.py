@@ -41,6 +41,8 @@ def index():
 
             model_path = app.config["APP_FOLDER"] + "/ML_model/audio_MNIST_v1.tf"
             app.logger.info("MODEL PATH: " + model_path)
+
+            tensorflow.get_logger().setLevel("ERROR")
             model = tensorflow.keras.models.load_model(model_path)
             app.logger.info("Model loaded.")
 
