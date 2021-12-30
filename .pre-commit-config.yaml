@@ -21,6 +21,7 @@ repos:
         entry: >-
           autoflake
           --in-place
+          --ignore-init-module-imports
           --remove-all-unused-imports
           --remove-unused-variables
         language: python
@@ -31,5 +32,6 @@ repos:
         entry: >-
           flake8
           --max-line-length=150
+          --per-file-ignores="__init__.py:E402,F401"
           --ignore=F403,F405,F841,W503
         types: [python]

@@ -1,5 +1,5 @@
-from api_src.views import index
+from src_api.views import helloworld
 
 
-def test_index():
-    assert index() == "Hello world !"
+def test_helloworld():
+    assert helloworld() == "Hello world !"
