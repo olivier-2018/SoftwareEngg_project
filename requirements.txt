@@ -6,5 +6,6 @@ librosa
 pre-commit
 pytest
 requests
+sndfile
 soundfile
 tensorflow
