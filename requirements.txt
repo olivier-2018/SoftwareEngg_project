@@ -6,6 +6,5 @@ librosa
 pre-commit
 pytest
 requests
-sndfile
-soundfile
+SoundFile==0.10.3.post1
 tensorflow
