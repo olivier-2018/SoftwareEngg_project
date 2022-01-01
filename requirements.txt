@@ -7,4 +7,4 @@ librosa
 pre-commit
 pytest
 requests
-tensorflow
+tensorflow-cpu
