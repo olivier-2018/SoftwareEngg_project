@@ -1,1 +1,1 @@
-web gunincorn --pythonpath src_api views:app
+web: gunicorn --pythonpath src_api views:app

@@ -2,9 +2,9 @@ autoflake
 black
 flake8
 flask
+gunicorn
 librosa
 pre-commit
 pytest
 requests
-SoundFile==0.10.3.post1
 tensorflow
