@@ -2,10 +2,9 @@ autoflake
 black
 flake8
 flask
+gunicorn
 librosa
-logging
 pre-commit
 pytest
 requests
-tensorflow==2.5
-typing-extensions==3.10.0
+tensorflow-cpu

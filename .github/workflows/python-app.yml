@@ -5,9 +5,9 @@ name: Python application
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev_CD_implementation]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev_CD_implementation]
 
 jobs:
   build:
@@ -15,7 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Install sndfile libraries
+      run: sudo apt-get install libsndfile1 libsndfile-dev
     - uses: actions/checkout@v2
+    - run: |
+        git fetch --prune --unshallow
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -27,9 +31,17 @@ jobs:
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --per-file-ignores="__init__.py:E402,F401" --ignore=F403,F405,F841,W503
+        # exit-zero treats all errors as warnings. The GitHub editor is 150 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=150 --statistics --per-file-ignores="__init__.py:E402,F401" --ignore=F403,F405,F841,W503
     - name: Test with pytest
       run: |
         pytest
+    - name: Deploy to Heroku
+      env:
+        HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
+        SOFTWARE_ENGG_HEROKU_APP_NAME: ${{ secrets.SOFTWARE_ENGG_HEROKU_APP_NAME }}
+      if: github.ref == 'refs/heads/dev_CD_implementation' && job.status == 'success'
+      run: |
+        git remote add heroku https://heroku:$HEROKU_API_TOKEN@git.heroku.com/$SOFTWARE_ENGG_HEROKU_APP_NAME.git
+        git push heroku HEAD:master -f

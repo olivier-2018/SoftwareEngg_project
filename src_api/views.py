@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 @app.route("/", methods=["GET", "POST"])
-def index():
+def predict_from_file():
 
     app.logger.info("===================== starting web page")
 
@@ -41,6 +41,8 @@ def index():
 
             model_path = app.config["APP_FOLDER"] + "/ML_model/audio_MNIST_v1.tf"
             app.logger.info("MODEL PATH: " + model_path)
+
+            tensorflow.get_logger().setLevel("ERROR")
             model = tensorflow.keras.models.load_model(model_path)
             app.logger.info("Model loaded.")
 
@@ -70,11 +72,3 @@ def index():
 @app.route("/hello")
 def helloworld():
     return "Hello world !"
-
-
-# def load_audio(path, sampling_rate=SAMPLING_RATE, duration_s=MAX_DURATION_S):
-#     audio = np.zeros(int(duration_s * sampling_rate))
-#     waveform, __ = librosa.load(path, sr=sampling_rate)
-#     waveform = waveform[:len(audio)]
-#     audio[:len(waveform)] = waveform
-#     return audio
