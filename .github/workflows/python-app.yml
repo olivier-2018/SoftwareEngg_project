@@ -41,7 +41,7 @@ jobs:
       env:
         HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
         SOFTWARE_ENGG_HEROKU_APP_NAME: ${{ secrets.SOFTWARE_ENGG_HEROKU_APP_NAME }}
-      if: github.ref == ('refs/heads/main' || 'refs/heads/dev_CD_implementation') && job.status == 'success'
+      if: github.ref == 'refs/heads/dev_CD_implementation' && job.status == 'success'
       run: |
         git remote add heroku https://heroku:$HEROKU_API_TOKEN@git.heroku.com/$SOFTWARE_ENGG_HEROKU_APP_NAME.git
-        git push heroku HEAD:master -f -v
+        git push heroku HEAD:master -f
