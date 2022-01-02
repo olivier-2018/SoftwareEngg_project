@@ -15,15 +15,10 @@ logging.basicConfig(level=logging.INFO)
 @app.route("/", methods=["GET", "POST"])
 def predict_from_file():
 
-    app.logger.info("===================== starting web page")
-
-    app.logger.info("APP FOLDER: " + app.config["APP_FOLDER"])
-    app.logger.info("UPLOAD FOLDER: " + app.config["UPLOAD_FOLDER"])
-
     prediction = ""
 
     if request.method == "POST":
-        print("FORM DATA RECEIVED")
+        app.logger.info("=== FORM DATA RECEIVED")
 
         if "file" not in request.files:
             return redirect(request.url)
@@ -34,17 +29,17 @@ def predict_from_file():
             return redirect(request.url)
 
         if audiofile:
-            app.logger.info("AUDIO FILENAME: " + audiofile.filename)
+            app.logger.info(f"AUDIO FILENAME: {audiofile.filename}")
 
             audiofile.save(os.path.join(app.config["UPLOAD_FOLDER"], secure_filename(audiofile.filename)))
             app.logger.info("Audio file saved.")
 
             model_path = app.config["APP_FOLDER"] + "/ML_model/audio_MNIST_v1.tf"
-            app.logger.info("MODEL PATH: " + model_path)
+            app.logger.info(f"MODEL PATH: {model_path}")
 
-            tensorflow.get_logger().setLevel("ERROR")
+            # tensorflow.get_logger().setLevel("ERROR")
             model = tensorflow.keras.models.load_model(model_path)
-            app.logger.info("Model loaded.")
+            app.logger.info("ML model loaded.")
 
             SAMPLING_RATE = 16_000
             MAX_DURATION_S = 0.5
@@ -55,6 +50,7 @@ def predict_from_file():
             app.logger.info("Reading audio file with librosa, then deleting wav file.")
             waveform, __ = librosa.load(path, sr=SAMPLING_RATE)
             os.remove(path)
+            app.logger.debug("Uploaded file deleted after loading.")
 
             waveform = waveform[: len(audio)]
             audio[: len(waveform)] = waveform
