@@ -10,3 +10,6 @@ venv/
 
 # audio files
 *.wav
+
+# log file
+*.log
