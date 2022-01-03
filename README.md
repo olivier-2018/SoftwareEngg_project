@@ -1,5 +1,5 @@
 ## Software Engineering project
-REST API development in Machine Learning applications
+*REST API development in Machine Learning applications*
 
 ### Project goal & requirements:
 - Develop an API from a trained machine learning model.
