@@ -37,7 +37,7 @@ def test_backend_file_delete():
     original folder after the function has been executed.    
     '''
     import shutil
-    folder_name = "..\\tests"
+    folder_name = "..\\tests\\testfiles"
     file_name = "test_file.wav"
     file_name_copy = "test_file_copy.wav"
     shutil.copyfile(f"{folder_name}\{file_name}", f"{folder_name}\{file_name_copy}")

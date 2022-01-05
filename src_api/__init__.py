@@ -14,8 +14,8 @@ logger.setLevel(logging.INFO)
 formatter = logging.Formatter("%(levelname)s:%(name)s:%(message)s")
 
 log_file = "app.log"
-if os.path.exists(log_file):
-    os.remove(log_file)
+#if os.path.exists(log_file):
+#    os.remove(log_file)
 file_handler = logging.FileHandler(log_file)
 file_handler.setFormatter(formatter)
 
