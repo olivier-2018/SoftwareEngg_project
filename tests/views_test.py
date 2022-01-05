@@ -1,6 +1,17 @@
 from src_api.views import *
 import pytest
 
+def TestBasics():
+    """Basics of testfiles.
+
+    Returns:
+        tuple: filenames and folder
+    """
+    folder_name = "..\\tests\\testfiles"
+    file_name = "test_file.wav"
+    file_name_copy = "test_file_copy.wav"
+    return folder_name,file_name,file_name_copy
+
 
 def test_predict_from_file():
     print()
@@ -15,6 +26,10 @@ def test_backend_rawfile_load():
     
 
 def test_backend_file_load():
+    """
+    Checks if the the shape of the Output-array in def backend_file_load is...
+    """
+
     print()
 
 
@@ -31,15 +46,12 @@ def test_audio_sequence():
 
 
 def test_backend_file_delete():
-    '''
-    Checks if the file passed to the function is deleted from the folder at the end.
+    """Checks if the file passed to the def backend_file_delete is deleted from the folder at the end.
     The original file is copied for the test and the original file is left inside the 
-    original folder after the function has been executed.    
-    '''
+    original folder after the function has been executed.
+    """
     import shutil
-    folder_name = "..\\tests\\testfiles"
-    file_name = "test_file.wav"
-    file_name_copy = "test_file_copy.wav"
+    folder_name, file_name, file_name_copy = TestBasics()
     shutil.copyfile(f"{folder_name}\{file_name}", f"{folder_name}\{file_name_copy}")
     result = backend_file_delete(file_name_copy,folder_name)
     assert os.path.exists(os.path.join(folder_name, file_name_copy)) == 0
