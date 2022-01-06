@@ -25,7 +25,8 @@ def TestBasicsCopy(shutil):
     
     """
     folder_name, file_name, file_name_copy = TestBasics()
-    shutil.copyfile(f"{folder_name}\{file_name}", f"{folder_name}\{file_name_copy}")
+    shutil.copyfile(os.path.join(folder_name,file_name), os.path.join(folder_name,file_name_copy))
+    #shutil.copyfile(f"{folder_name}\{file_name}", f"{folder_name}\{file_name_copy}")
     return folder_name,file_name_copy
 
 
