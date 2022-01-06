@@ -9,7 +9,7 @@
 venv/
 
 # audio files
-/static/client/wav/*.wav
+*.wav
 
 # log file
 *.log
