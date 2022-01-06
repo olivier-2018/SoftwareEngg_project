@@ -11,7 +11,7 @@ def TestBasics():
     Returns:
         tuple: filenames and folder.
     """
-    folder_name = os.join(app.config["APP_FOLDER"], "tests", "testfiles")
+    folder_name = os.path.join(app.config["APP_FOLDER"], "tests", "testfiles")
     file_name = "test_file.wav"
     file_name_copy = "test_file_copy.wav"
     return folder_name,file_name,file_name_copy
