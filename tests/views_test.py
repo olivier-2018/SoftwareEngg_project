@@ -1,6 +1,5 @@
 from numpy import ndarray, result_type
 from src_api.views import *
-import pytest
 import shutil
 import os
 
