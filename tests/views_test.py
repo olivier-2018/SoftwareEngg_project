@@ -24,32 +24,9 @@ def files_basics_copy():
         tuple:  filenames and folder.
     
     """
-    folder_name, file_name, file_name_copy = files_basics_copy()
+    folder_name, file_name, file_name_copy = folder_files_basics()
     shutil.copyfile(os.path.join(folder_name,file_name), os.path.join(folder_name,file_name_copy))
     return folder_name,file_name_copy
-
-
-def test_predict_from_file():
-    print()
-
-
-def test_backend_save_request_object():
-    """
-    filetype?
-    """
-    print()
-
-
-def test_backend_rawfile_load():
-    print()
-    
-
-def test_backend_file_load():
-    print()
-
-
-def test_get_duration():
-    print()
 
 
 def test_get_sampling_rate():
@@ -73,18 +50,6 @@ def test_load_audio_sequence():
     folder_name, file_name_copy = files_basics_copy()
     result = load_audio_sequence(file_name_copy, sampling_rate, max_seq_length, folder_name)
     assert result.shape == (8000,)
-
-
-def test_play_sound():
-    print()
-
-
-def test_load_ML_model():
-    print()
-
-
-def test_make_prediction():
-    print()
 
 
 def test_backend_file_delete():
