@@ -26,7 +26,6 @@ def TestBasicsCopy(shutil):
     """
     folder_name, file_name, file_name_copy = TestBasics()
     shutil.copyfile(os.path.join(folder_name,file_name), os.path.join(folder_name,file_name_copy))
-    #shutil.copyfile(f"{folder_name}\{file_name}", f"{folder_name}\{file_name_copy}")
     return folder_name,file_name_copy
 
 
@@ -35,6 +34,9 @@ def test_predict_from_file():
 
 
 def test_backend_save_request_object():
+    """
+    filetype?
+    """
     print()
 
 
@@ -60,20 +62,17 @@ def test_get_sampling_rate():
     assert result == 8000
 
 
-def test_audio_sequence():
-    print()
-
-
-def test_backend_file_delete():
+def test_load_audio_sequence():
     """
-    Checks if the file passed to the def backend_file_delete is deleted from the folder at the end.
-    The original file is copied for the test and the original file is left inside the 
-    original folder after the function has been executed.
+    Checks if the shape of the Output of def load_audio_sequence is (8000,)
     """
-
+    
+    sampling_rate = 8000
+    max_seq_length = 8000
+    
     folder_name, file_name_copy = TestBasicsCopy(shutil)
-    backend_file_delete(file_name_copy,folder_name)
-    assert os.path.exists(os.path.join(folder_name, file_name_copy)) == 0
+    result = load_audio_sequence(file_name_copy, sampling_rate, max_seq_length, folder_name)
+    assert result.shape == (8000,)
 
 
 def test_play_sound():
@@ -88,5 +87,14 @@ def test_make_prediction():
     print()
 
 
-def test_helloworld():
-    assert helloworld() == "Hello world !"
+def test_backend_file_delete():
+    """
+    Checks if the file passed to the def backend_file_delete is deleted from the folder at the end.
+    The original file is copied for the test and the original file is left inside the 
+    original folder after the function has been executed.
+    This needs to be the last executed test, which deletes the Testfile. Therefor run tests>pytest -v -W ignore
+    """
+
+    folder_name, file_name_copy = TestBasicsCopy(shutil)
+    backend_file_delete(file_name_copy,folder_name)
+    assert os.path.exists(os.path.join(folder_name, file_name_copy)) == 0
