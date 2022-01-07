@@ -3,7 +3,7 @@ from src_api.views import *
 import shutil
 import os
 
-def TestBasics():
+def folder_files_basics():
     """
     Sets the Basic Folder/Files for Testing.
 
@@ -16,7 +16,7 @@ def TestBasics():
     return folder_name,file_name,file_name_copy
 
 
-def TestBasicsCopy(shutil):
+def files_basics_copy():
     """
     Creates Copies of the Files from TestBasics() for Testing.
     
@@ -24,7 +24,7 @@ def TestBasicsCopy(shutil):
         tuple:  filenames and folder.
     
     """
-    folder_name, file_name, file_name_copy = TestBasics()
+    folder_name, file_name, file_name_copy = files_basics_copy()
     shutil.copyfile(os.path.join(folder_name,file_name), os.path.join(folder_name,file_name_copy))
     return folder_name,file_name_copy
 
@@ -57,7 +57,7 @@ def test_get_sampling_rate():
     Checks if the the Returned Sampling Rate of def_sampling_rate is 8000.
     """
     
-    folder_name, file_name_copy = TestBasicsCopy(shutil)
+    folder_name, file_name_copy = files_basics_copy(shutil)
     result = get_sampling_rate(file_name_copy,folder_name)
     assert result == 8000
 
@@ -70,7 +70,7 @@ def test_load_audio_sequence():
     sampling_rate = 8000
     max_seq_length = 8000
     
-    folder_name, file_name_copy = TestBasicsCopy(shutil)
+    folder_name, file_name_copy = files_basics_copy(shutil)
     result = load_audio_sequence(file_name_copy, sampling_rate, max_seq_length, folder_name)
     assert result.shape == (8000,)
 
@@ -95,6 +95,6 @@ def test_backend_file_delete():
     This needs to be the last executed test, which deletes the Testfile. Therefor run tests>pytest -v -W ignore
     """
 
-    folder_name, file_name_copy = TestBasicsCopy(shutil)
+    folder_name, file_name_copy = files_basics_copy(shutil)
     backend_file_delete(file_name_copy,folder_name)
     assert os.path.exists(os.path.join(folder_name, file_name_copy)) == 0
