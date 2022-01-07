@@ -22,12 +22,10 @@ def predict_from_file():
         app.logger.info("=== FORM RECEIVED ===")
 
         if "file" not in request.files:
-            app.logger.error("=== No file detected ===")
+            app.logger.error("=== No selected file detected ===")
             return redirect(request.url)
 
         request_object = request.files["file"]
-        app.logger.debug(f"Type request_object: {type(request_object)}")
-        app.logger.debug(f"dir request_object: {dir(request_object)}")
 
         if request_object.filename == "":
             app.logger.warning("No filename selected.")
@@ -72,7 +70,7 @@ def predict_from_file():
                 model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.7.0.tf")
                 app.logger.info("Tensorflow v2.7.0 (pip) detected, ML model audio_MNIST_v3-TF_v2.7.0.tf used.")
             else:
-                app.logger.error("App requires either Tensorflow v2.3.0 (conda) or Tensorflow 2.7.0 (pip) installed.")
+                app.logger.critical("App requires either Tensorflow v2.3.0 (conda) or Tensorflow 2.7.0 (pip) installed.")
                 return redirect(request.url)
 
             # Make prediction based on ML model and audio sequence input
@@ -93,11 +91,11 @@ def backend_save_request_object(request_object: complex, upload_path: str = app.
     """
     app.logger.info("===== backend_save_request_object =====")
     filename = request_object.filename
-    app.logger.debug(f"Selected filename: {filename}")
+    app.logger.debug("Selected filename: %s", filename)
 
     path = os.path.join(upload_path, secure_filename(filename))
     request_object.save(path)
-    app.logger.debug(f"File {filename} saved in {upload_path}")
+    app.logger.debug("File %s saved in %s", filename, upload_path)
     return None
 
 
@@ -114,7 +112,7 @@ def backend_rawfile_load(filename: str, upload_path: str = app.config["UPLOAD_FO
     app.logger.info("===== backend_rawfile_load =====")
     path = os.path.join(upload_path, filename)
     waveform, sr_read = librosa.core.load(path, sr=None)
-    app.logger.debug(f"Loading waveform of type: {type(waveform)}, shape: {waveform.shape} and sampling rate: {sr_read}")
+    app.logger.debug("Loading waveform of type: %s , shape: %s and sampling rate: %s", type(waveform), waveform.shape, sr_read)
     return waveform
 
 
@@ -132,7 +130,7 @@ def backend_file_load(filename: str, sampling_rate: int = None, upload_path: str
     app.logger.info("===== load_sound_file =====")
     path = os.path.join(upload_path, filename)
     waveform, sr_read = librosa.core.load(path, sr=sampling_rate)
-    app.logger.debug(f"Loading waveform of type: {type(waveform)}, shape: {waveform.shape} and sampling rate: {sr_read}")
+    app.logger.debug("Loading waveform of type: %s, shape: %s and sampling rate: %s", type(waveform), waveform.shape, sr_read)
     return waveform
 
 
@@ -149,7 +147,7 @@ def get_duration(filename: str, upload_path: str = app.config["UPLOAD_FOLDER"]) 
     app.logger.info("===== get_duration =====")
     path = os.path.join(upload_path, filename)
     duration = librosa.get_duration(filename=path)
-    app.logger.debug(f"File {filename} has duration= {duration}sec")
+    app.logger.debug("File %s has duration= %ssec", filename, duration)
     return duration
 
 
@@ -166,7 +164,7 @@ def get_sampling_rate(filename: str, upload_path: str = app.config["UPLOAD_FOLDE
     app.logger.info("===== get_sampling_rate =====")
     path = os.path.join(upload_path, filename)
     sampling_rate = librosa.get_samplerate(path)
-    app.logger.debug(f"File {filename} has sampling_rate: {sampling_rate}")
+    app.logger.debug("File %s has sampling_rate: %s", filename, sampling_rate)
     return sampling_rate
 
 
@@ -188,12 +186,12 @@ def load_audio_sequence(
     path = os.path.join(upload_path, filename)
 
     waveform, __ = librosa.core.load(path, sr=sampling_rate)
-    app.logger.debug(f"File {filename} read with sampling_rate {sampling_rate}Hz and shape {waveform.shape}")
+    app.logger.debug("File %s read with sampling_rate %sHz and shape %s", filename, sampling_rate, waveform.shape)
 
     audio_sequence = np.zeros(max_seq_length)
     waveform = waveform[: len(audio_sequence)]
     audio_sequence[: len(waveform)] = waveform
-    app.logger.debug(f"audio_sequence adjusted to shape {audio_sequence.shape}")
+    app.logger.debug("audio_sequence adjusted to shape %s", audio_sequence.shape)
 
     return audio_sequence
 
@@ -211,7 +209,7 @@ def backend_file_delete(filename: str, upload_path: str = app.config["UPLOAD_FOL
     app.logger.info("===== backend_file_delete =====")
     path = os.path.join(upload_path, filename)
     os.remove(path)
-    app.logger.debug(f"File {filename} deleted in {upload_path}.")
+    app.logger.debug("File %s deleted in %s.", filename, upload_path)
     return None
 
 
@@ -230,7 +228,7 @@ def load_ML_model(model_path: str = "/ML_model/audio_MNIST_v1.tf") -> complex:
     """
     app.logger.info("===== load_ML_model =====")
     path = app.config["APP_FOLDER"] + model_path
-    app.logger.debug(f"model path: {path}")
+    app.logger.debug("model path: %s", path)
 
     tensorflow.get_logger().setLevel("ERROR")
     model = tensorflow.keras.models.load_model(path)
@@ -258,7 +256,7 @@ def make_prediction(model, audio_sequence, model_input_dim: str = 8000) -> int:
     app.logger.warning("Taking argmax of prediction probability.")
     prediction = np.argmax(prediction_proba)
 
-    app.logger.info(f"Prediction: {prediction}")
+    app.logger.info("Prediction: %s", prediction)
 
     return prediction
 
