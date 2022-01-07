@@ -2,6 +2,7 @@ from numpy import ndarray, result_type
 from src_api.views import *
 import shutil
 import os
+import pytest
 
 def folder_files_basics():
     """
@@ -27,6 +28,28 @@ def files_basics_copy():
     folder_name, file_name, file_name_copy = folder_files_basics()
     shutil.copyfile(os.path.join(folder_name,file_name), os.path.join(folder_name,file_name_copy))
     return folder_name,file_name_copy
+
+
+folder_name, file_name_copy = files_basics_copy()
+
+
+@pytest.mark.parametrize("file_name_copy, folder_name, result", 
+    [
+        (file_name_copy, folder_name, 8000,),
+    ]
+)
+
+
+def test_get_sampling_rate_func(folder_name, file_name_copy, result):
+    """
+    Parametrized Test: 
+    Checks if the Returned Sampling Rate of def_sampling_rate is 8000.
+    """
+    
+    folder_name, file_name_copy = files_basics_copy()
+    result = get_sampling_rate(file_name_copy,folder_name)
+    assert result == 8000
+    backend_file_delete(file_name_copy,folder_name)
 
 
 def test_get_sampling_rate():
