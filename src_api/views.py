@@ -1,10 +1,12 @@
 from src_api import app
 from flask import render_template, request, redirect
 import os
+import pathlib
 import librosa
 import numpy as np
 from werkzeug.utils import secure_filename
 import tensorflow
+import soundfile as sf
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -27,15 +29,14 @@ def predict_from_file():
 
         request_object = request.files["file"]
 
-        if request_object.filename == "":
-            app.logger.warning("No filename selected.")
-            return redirect(request.url)
-
-        if request_object:
+        if is_valid_filename(request_object):
             audio_filename = request_object.filename
-
             # Save selected audio file on server backend
             backend_save_request_object(request_object)
+        else:
+            return redirect(request.url)
+
+        if is_valid_audio_file(audio_filename, upload_path=app.config["UPLOAD_FOLDER"]):
 
             # Process audio file if required (future app developments)
             # waveform, sr_read = backend_rawfile_load (audio_filename, upload_path=app.config["UPLOAD_FOLDER"])
@@ -56,7 +57,7 @@ def predict_from_file():
             )
 
             # Supress audio file on backend server
-            backend_file_delete(audio_filename)
+            backend_file_delete(audio_filename, upload_path=app.config["UPLOAD_FOLDER"])
 
             # Save processed audio sequence (DEBUG for future app developments)
             # sf.write('test.wav', audio_sequence, new_sampling_rate, 'PCM_16')
@@ -76,7 +77,22 @@ def predict_from_file():
             # Make prediction based on ML model and audio sequence input
             prediction = make_prediction(model, audio_sequence, model_input_dim)
 
+        else:
+            return redirect(request.url)
+
     return render_template("index.html", model_prediction=prediction)
+
+
+def is_valid_filename(request_object: complex) -> bool:
+    app.logger.info("===== is_valid_filename =====")
+    if request_object.filename == "":
+        app.logger.error("No filename selected.")
+        return False
+    elif not pathlib.Path(request_object.filename).suffix.lower() == ".wav":
+        app.logger.warning("Wrong file extension. Is this really a wav audio file ?")
+    else:
+        app.logger.debug("Correct file extension detected.")
+    return True
 
 
 def backend_save_request_object(request_object: complex, upload_path: str = app.config["UPLOAD_FOLDER"]) -> None:
@@ -94,9 +110,29 @@ def backend_save_request_object(request_object: complex, upload_path: str = app.
     app.logger.debug("Selected filename: %s", filename)
 
     path = os.path.join(upload_path, secure_filename(filename))
+    app.logger.debug("Selected path: %s", path)
     request_object.save(path)
     app.logger.debug("File %s saved in %s", filename, upload_path)
     return None
+
+
+def is_valid_audio_file(audio_filename, upload_path=app.config["UPLOAD_FOLDER"]):
+    app.logger.info("===== is_valid_audio_file =====")
+    try:
+        path = os.path.join(upload_path, audio_filename)
+        app.logger.debug("Selected path: %s", path)
+        s = sf.info(path)
+    except AssertionError:
+        app.logger.warning("Cannot open audio file. Selected file is not an audio file. File deleted.")
+        backend_file_delete(audio_filename, upload_path)
+        return False
+
+    if s.format.lower() == "wav":
+        app.logger.info("Detected wav audio format.")
+        return True
+    else:
+        app.logger.warning("Selected file is not a wav audio format.")
+        return False
 
 
 def backend_rawfile_load(filename: str, upload_path: str = app.config["UPLOAD_FOLDER"]) -> complex:
