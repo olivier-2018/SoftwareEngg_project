@@ -118,11 +118,13 @@ def backend_save_request_object(request_object: complex, upload_path: str = app.
 
 def is_valid_audio_file(audio_filename, upload_path=app.config["UPLOAD_FOLDER"]):
     app.logger.info("===== is_valid_audio_file =====")
+    # try:
+    path = os.path.join(upload_path, audio_filename)
+    app.logger.debug("Selected path: %s", path)
+
     try:
-        path = os.path.join(upload_path, audio_filename)
-        app.logger.debug("Selected path: %s", path)
         s = sf.info(path)
-    except AssertionError:
+    except RuntimeError:
         app.logger.warning("Cannot open audio file. Selected file is not an audio file. File deleted.")
         backend_file_delete(audio_filename, upload_path)
         return False
