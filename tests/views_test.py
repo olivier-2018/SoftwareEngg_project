@@ -37,6 +37,7 @@ def test_get_sampling_rate():
     folder_name, file_name_copy = files_basics_copy()
     result = get_sampling_rate(file_name_copy,folder_name)
     assert result == 8000
+    backend_file_delete(file_name_copy,folder_name)
 
 
 def test_load_audio_sequence():
@@ -50,6 +51,7 @@ def test_load_audio_sequence():
     folder_name, file_name_copy = files_basics_copy()
     result = load_audio_sequence(file_name_copy, sampling_rate, max_seq_length, folder_name)
     assert result.shape == (8000,)
+    backend_file_delete(file_name_copy,folder_name)
 
 
 def test_backend_file_delete():
@@ -57,7 +59,6 @@ def test_backend_file_delete():
     Checks if the file passed to the def backend_file_delete is deleted from the folder at the end.
     The original file is copied for the test and the original file is left inside the 
     original folder after the function has been executed.
-    This needs to be the last executed test, which deletes the Testfile. Therefor run tests>pytest -v -W ignore
     """
 
     folder_name, file_name_copy = files_basics_copy()
