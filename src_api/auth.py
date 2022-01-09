@@ -105,3 +105,28 @@ def logout():
 def profile():
     current_app.logger.info("Redirected to profile page.")
     return render_template("profile.html", user=current_user)
+
+
+@auth.route("/home")
+@auth.route("/")
+def home():
+    """Makes a digit prediction by uploading a wav file using the audio MNIST ML model
+
+    Returns:
+        [render_template]: Render template object with prediction variable (int)
+    """
+    if not current_user.is_authenticated:
+        flash("Please log in to access full app functionality !", category="error")
+        return render_template("home.html", user=None)
+    else:
+        return render_template("home.html", user=current_user)
+
+
+@auth.route("/about")
+def about():
+    current_app.logger.info("Redirected to about page.")
+
+    if not current_user.is_authenticated:
+        return render_template("about.html", user=None)
+    else:
+        return render_template("about.html", user=current_user)

@@ -12,31 +12,6 @@ import soundfile as sf
 views = Blueprint("views", __name__)
 
 
-@views.route("/home")
-@views.route("/")
-def home():
-    """Makes a digit prediction by uploading a wav file using the audio MNIST ML model
-
-    Returns:
-        [render_template]: Render template object with prediction variable (int)
-    """
-    if not current_user.is_authenticated:
-        flash("Please log in to access full app functionality !", category="error")
-        return render_template("home.html", user=None)
-    else:
-        return render_template("home.html", user=current_user)
-
-
-@views.route("/about")
-def about():
-    current_app.logger.info("Redirected to about page.")
-
-    if not current_user.is_authenticated:
-        return render_template("about.html", user=None)
-    else:
-        return render_template("about.html", user=current_user)
-
-
 @views.route("/predict_from_file", methods=["GET", "POST"])
 @login_required
 def predict_from_file():
@@ -45,7 +20,7 @@ def predict_from_file():
     Returns:
         [render_template]: Render template object with prediction variable (int)
     """
-
+    audio_sequence = np.zeros(1)
     prediction = ""
     UPLOAD_FOLDER = current_app.config["UPLOAD_FOLDER"]
 
@@ -63,9 +38,16 @@ def predict_from_file():
             # Save selected audio file on server backend
             backend_save_request_object(request_object, upload_path=UPLOAD_FOLDER)
         else:
+            current_app.logger.error("Invalid filename.")
+            flash("Invalid filename", category="error")
             return redirect(request.url)
 
-        if is_valid_audio_file(audio_filename, upload_path=UPLOAD_FOLDER):
+        if not is_valid_audio_file(audio_filename, upload_path=UPLOAD_FOLDER):
+
+            flash("Invalid file format (not an audio wav file)", category="error")
+            return redirect(request.url)
+
+        else:
 
             # Process audio file if required (future app developments)
             # waveform, sr_read = backend_rawfile_load (audio_filename, upload_path=UPLOAD_FOLDER)
@@ -101,15 +83,13 @@ def predict_from_file():
                 current_app.logger.info("Tensorflow v2.7.0 (pip) detected, ML model audio_MNIST_v3-TF_v2.7.0.tf used.")
             else:
                 current_app.logger.critical("App requires either Tensorflow v2.3.0 (conda) or Tensorflow 2.7.0 (pip) installed.")
+                flash("App requires either Tensorflow v2.3.0 (conda) or Tensorflow 2.7.0 (pip) installed.", category="error")
                 return redirect(request.url)
 
             # Make prediction based on ML model and audio sequence input
             prediction = make_prediction(model, audio_sequence, model_input_dim)
 
-        else:
-            return redirect(request.url)
-
-    return render_template("predict_from_file.html", model_prediction=prediction, user=current_user)
+    return render_template("predict_from_file.html", model_prediction=prediction, user=current_user, audio=audio_sequence.tolist())
 
 
 def is_valid_filename(request_object: complex) -> bool:
@@ -146,7 +126,7 @@ def backend_save_request_object(request_object: complex, upload_path: str) -> No
 
 
 def is_valid_audio_file(audio_filename, upload_path):
-    current_app.logger.info("===== is_valid_audio_file =====")
+    current_app.logger.info("Checking audio file format.")
 
     path = os.path.join(upload_path, audio_filename)
     current_app.logger.debug("Selected path: %s", path)
