@@ -105,9 +105,3 @@ def logout():
 def profile():
     current_app.logger.info("Redirected to profile page.")
     return render_template("profile.html", user=current_user)
-
-
-@auth.route("/about")
-def about():
-    current_app.logger.info("Redirected to about page.")
-    return render_template("about.html", user=None)

@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, redirect, render_template, request
+from flask import Blueprint, current_app, redirect, render_template, request, flash
 from flask_login import login_required, current_user
 import os
 import pathlib
@@ -12,6 +12,7 @@ import soundfile as sf
 views = Blueprint("views", __name__)
 
 
+@views.route("/home")
 @views.route("/")
 def home():
     """Makes a digit prediction by uploading a wav file using the audio MNIST ML model
@@ -19,8 +20,21 @@ def home():
     Returns:
         [render_template]: Render template object with prediction variable (int)
     """
+    if not current_user.is_authenticated:
+        flash("Please log in to access full app functionality !", category="error")
+        return render_template("home.html", user=None)
+    else:
+        return render_template("home.html", user=current_user)
 
-    return render_template("home.html", user=None)
+
+@views.route("/about")
+def about():
+    current_app.logger.info("Redirected to about page.")
+
+    if not current_user.is_authenticated:
+        return render_template("about.html", user=None)
+    else:
+        return render_template("about.html", user=current_user)
 
 
 @views.route("/predict_from_file", methods=["GET", "POST"])
