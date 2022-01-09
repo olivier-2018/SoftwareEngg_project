@@ -38,13 +38,6 @@ def login():
     return render_template("login.html", user=current_user)
 
 
-@auth.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for("auth.login"))
-
-
 @auth.route("/sign-up", methods=["GET", "POST"])
 def sign_up():
     current_app.logger.info("Redirected to Sign-up page.")
@@ -96,3 +89,25 @@ def sign_up():
             return redirect(url_for("views.home"))
 
     return render_template("sign_up.html", user=current_user)
+
+
+@auth.route("/logout")
+@login_required
+def logout():
+    current_app.logger.info("Redirected to logout page.")
+    logout_user()
+    current_app.logger.info("User %s logged out.", current_user)
+    return redirect(url_for("auth.login"))
+
+
+@auth.route("/profile", methods=["GET"])
+@login_required
+def profile():
+    current_app.logger.info("Redirected to profile page.")
+    return render_template("profile.html", user=current_user)
+
+
+@auth.route("/about")
+def about():
+    current_app.logger.info("Redirected to about page.")
+    return render_template("about.html", user=None)

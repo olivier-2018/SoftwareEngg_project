@@ -12,9 +12,20 @@ import soundfile as sf
 views = Blueprint("views", __name__)
 
 
-@views.route("/", methods=["GET", "POST"])
-@login_required
+@views.route("/")
 def home():
+    """Makes a digit prediction by uploading a wav file using the audio MNIST ML model
+
+    Returns:
+        [render_template]: Render template object with prediction variable (int)
+    """
+
+    return render_template("home.html", user=None)
+
+
+@views.route("/predict_from_file", methods=["GET", "POST"])
+@login_required
+def predict_from_file():
     """Makes a digit prediction by uploading a wav file using the audio MNIST ML model
 
     Returns:

@@ -17,3 +17,6 @@ venv/
 
 # databases
 *.db
+
+# pytest
+.pytest_cache

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+<form>
+
+  <h3 align="center">FHNW - Software Engineering project</h3>
+
+  <fieldset>
+
+    <legend><b>Authors:</b></legend>
+    <legend>
+      <a href="https://github.com/olivier-2018">Olivier</a> & <a href="https://github.com/4982">Angelo</a>
+    </legend>
+
+    <legend><b>Project requirements:</b></legend>
+      <figure>
+        <blockquote class="blockquote">
+          <li>Develop an API from a trained machine learning model.</li>
+          <li>Use GIT concept through the API development.</li>
+          <li>Use of CI/CD pipeline is recommended for additional credits.</li>
+          <li>The API should include user login, testing, code formating and logging.</li>
+          <li>The API should be executable.</li>
+          <li>Documentation and presentation should be available upon submission.</li>
+        </blockquote>
+      </figure>
+
+    <legend><b>API scope:</b></legend>
+      <figure>
+        <blockquote class="blockquote">
+          <li>The API is to process a single digit (from 0 to 9) audio signal and return the corresponding predicted digit using ML model in the backend.</li>
+          <li>The selected machine learning model for this project is the audio MNIST (Dataset, code) which identifies digits from audio inputs. </li>
+          <b>Disclaimer:</b> the ML model was trained to a 94% test accuracy but does not generalize on all real life test cases due to the reduced dataset size. </li>
+        </blockquote>
+        <figcaption class="blockquote-footer">
+          <li>The basic input method is through file selection. Additional developments are listed below if time permits.</li>
+          <li>Training the ML model on additional / augmented data is out of the project'scope.</li>
+        </figcaption>
+      </figure>
+
+      <legend><b>API planned developments:</b></legend>
+        <figure>
+          <blockquote class="blockquote">
+            <li>Capture single digit audio signal from microphone.</li>
+            <li>Capture multiple digit audio signal from microphone and return sequence of predicted digits.</li>
+            <li>Use multiple digit audio prediction for user login.</li>
+            <li>Use augmented / additional data to improve generalization on model prediction (male/female voices, accents, etc).</li>
+          </blockquote>
+        </figure>
+
+  </fieldset>
+</form>
+{% endblock %}
