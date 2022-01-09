@@ -59,8 +59,12 @@ flask run
 - The API will automatically deploy to Heroku upon succesful build on the main branch.   
  Nb: The Heroku app address is kept private not to reach the free account usage limit during the app development.
  
- ### Testing:
+### Testing:
 - Files are created and deleted. Local Tests therefor are to be run with pytest to ensure files are deleted after tests:
 ```sh
 pytest -v -W ignore
 ```
+
+### Documentation:
+The Documentation can be found in Wiki here: 
+**https://github.com/olivier-2018/SoftwareEngg_project/wiki/Documentation-Project**
