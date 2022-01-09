@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <h1 align="center">Prediction</h1>
+
+    <head>
+        <meta charset="UTF-8">
+        <title>FHNW Software Engineering</title>
+        <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/index.css') }}" />
+    </head>
+
+    <body>
+        <div id="audioFileContainer">
+            <h1>Upload a wav file</h1>
+            <form method="post" enctype="multipart/form-data">
+                <input type="file" name="file" />
+                <br>
+                <input type="submit" id="submitButton" value="upload" />
+            </form>
+
+            {% if model_prediction != "" %}
+            <div id="audioPredictionContainer">
+                <h1>Prediction</h1>
+                <p id="predictionText">{{ model_prediction }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </body>
+
+{% endblock %}

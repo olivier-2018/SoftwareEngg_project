@@ -2,6 +2,8 @@ autoflake
 black
 flake8
 flask
+flask_login
+flask_sqlalchemy
 gunicorn
 librosa
 pre-commit
