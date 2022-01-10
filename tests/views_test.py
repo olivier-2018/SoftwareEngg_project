@@ -1,66 +1,55 @@
-from numpy import ndarray, result_type
+from re import sub
 from src_api.views import *
 import shutil
 import os
-import pytest
+from tests.test_views import list_of_files, list_of_files_item
 
-def folder_files_basics():
+
+TEST_FOLDER_NAME = os.path.join(app.config["APP_FOLDER"], "tests", "testfiles")
+
+
+def folder_files_basics(file_name: str):
     """
-    Sets the Basic Folder/Files for Testing.
+    Sets the Basic Filename for Testing.
 
     Returns:
-        tuple: filenames and folder.
+        String: Filename.
     """
-    folder_name = os.path.join(app.config["APP_FOLDER"], "tests", "testfiles")
-    file_name = "test_file.wav"
-    file_name_copy = "test_file_copy.wav"
-    return folder_name,file_name,file_name_copy
+
+    file_name_copy = f"copy_of_{file_name}"
+    return file_name_copy
 
 
-def files_basics_copy():
+def files_basics_copy(file_name: str):
     """
-    Creates Copies of the Files from TestBasics() for Testing.
+    Copies the Files from TestBasics() for Testing.
     
     Returns:
-        tuple:  filenames and folder.
+        None.
+    """
+
+    file_name_copy = folder_files_basics(file_name)
+    shutil.copyfile(os.path.join(TEST_FOLDER_NAME,file_name), os.path.join(TEST_FOLDER_NAME,file_name_copy))
+    return file_name_copy
+
+
+for file_name in os.listdir(TEST_FOLDER_NAME):
+
+    i = 1
+    if file_name.endswith("wav"):
+
+        def test_get_sampling_rate():
+            """
+            Checks if the the Returned Sampling Rate of def_sampling_rate corresponds to the one recorded.
+            Example: "one_16000.wav" has sampling rate of 16000.
+            """
+            file_name_list_item = list_of_files_item(i)[0]
+            result = get_sampling_rate(file_name_list_item,TEST_FOLDER_NAME)
+            assert result == int(file_name_list_item[file_name_list_item.find("_")+1:-4])
+    else:
     
-    """
-    folder_name, file_name, file_name_copy = folder_files_basics()
-    shutil.copyfile(os.path.join(folder_name,file_name), os.path.join(folder_name,file_name_copy))
-    return folder_name,file_name_copy
-
-
-folder_name, file_name_copy = files_basics_copy()
-
-
-@pytest.mark.parametrize("file_name_copy, folder_name, result", 
-    [
-        (file_name_copy, folder_name, 8000,),
-    ]
-)
-
-
-def test_get_sampling_rate_func(folder_name, file_name_copy, result):
-    """
-    Parametrized Test: 
-    Checks if the Returned Sampling Rate of def_sampling_rate is 8000.
-    """
-    
-    folder_name, file_name_copy = files_basics_copy()
-    result = get_sampling_rate(file_name_copy,folder_name)
-    assert result == 8000
-    backend_file_delete(file_name_copy,folder_name)
-
-
-def test_get_sampling_rate():
-    """
-    Checks if the the Returned Sampling Rate of def_sampling_rate is 8000.
-    """
-    
-    folder_name, file_name_copy = files_basics_copy()
-    result = get_sampling_rate(file_name_copy,folder_name)
-    assert result == 8000
-    backend_file_delete(file_name_copy,folder_name)
+        continue
+    i = 1 + 1
 
 
 def test_load_audio_sequence():
@@ -71,10 +60,9 @@ def test_load_audio_sequence():
     sampling_rate = 8000
     max_seq_length = 8000
     
-    folder_name, file_name_copy = files_basics_copy()
-    result = load_audio_sequence(file_name_copy, sampling_rate, max_seq_length, folder_name)
+    result = load_audio_sequence(list_of_files_item(1)[0], sampling_rate, max_seq_length, TEST_FOLDER_NAME)
     assert result.shape == (8000,)
-    backend_file_delete(file_name_copy,folder_name)
+
 
 
 def test_backend_file_delete():
@@ -84,6 +72,11 @@ def test_backend_file_delete():
     original folder after the function has been executed.
     """
 
-    folder_name, file_name_copy = files_basics_copy()
-    backend_file_delete(file_name_copy,folder_name)
-    assert os.path.exists(os.path.join(folder_name, file_name_copy)) == 0
+    for file_name in os.listdir(TEST_FOLDER_NAME):
+        if file_name.endswith("wav"):
+            file_name_copy = files_basics_copy(file_name)
+            backend_file_delete(file_name_copy,TEST_FOLDER_NAME)
+            assert os.path.exists(os.path.join(TEST_FOLDER_NAME, file_name_copy)) == 0
+        else:
+            continue
+    return None
