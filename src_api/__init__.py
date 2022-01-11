@@ -17,8 +17,14 @@ def create_app():
     formatter = logging.Formatter("%(levelname)s:%(name)s:%(module)s.py:%(funcName)s:line %(lineno)d => %(message)s")
     # logging.Formatter("%(levelname)s:%(name)s:%(threadName)s:%(message)s:%(module)s:%(funcName)s:%(lineno)d")
     log_file = "app.log"
+
     if os.path.exists(log_file):
-        os.remove(log_file)
+        try:
+            os.remove(log_file)
+            os.unlink(log_file)
+        except:
+            pass
+
     file_handler = logging.FileHandler(log_file)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
