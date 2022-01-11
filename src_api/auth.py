@@ -27,7 +27,7 @@ def login():
                 login_user(user, remember=True)
                 current_app.logger.info("User Logged in successfully!")
 
-                return redirect(url_for("views.home"))
+                return redirect(url_for("auth.home"))
             else:
                 flash("Incorrect password, try again.", category="error")
                 current_app.logger.info("Incorrect password")
@@ -86,7 +86,7 @@ def sign_up():
             flash("Account created!", category="success")
             current_app.logger.info("Account created!")
 
-            return redirect(url_for("views.home"))
+            return redirect(url_for("auth.home"))
 
     return render_template("sign_up.html", user=current_user)
 

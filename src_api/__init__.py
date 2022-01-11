@@ -11,7 +11,7 @@ DB_NAME = "database.db"
 def create_app():
     app = Flask(__name__, template_folder=os.path.join("..", "templates"), static_folder=os.path.join("..", "static"))
 
-    # LOGGING
+    # Setting the app logger
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter("%(levelname)s:%(name)s:%(module)s.py:%(funcName)s:line %(lineno)d => %(message)s")

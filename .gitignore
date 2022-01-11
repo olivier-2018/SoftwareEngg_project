@@ -20,3 +20,6 @@ venv/
 
 # pytest
 .pytest_cache
+
+# images
+waveform.png

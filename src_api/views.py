@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, redirect, render_template, request, flash
+from flask import Blueprint, current_app, redirect, render_template, request, flash, url_for
 from flask_login import login_required, current_user
 import os
 import pathlib
@@ -7,7 +7,10 @@ import numpy as np
 from werkzeug.utils import secure_filename
 import tensorflow
 import soundfile as sf
+import matplotlib
+import matplotlib.pyplot as plt
 
+matplotlib.use("Agg")
 
 views = Blueprint("views", __name__)
 
@@ -20,9 +23,12 @@ def predict_from_file():
     Returns:
         [render_template]: Render template object with prediction variable (int)
     """
-    audio_sequence = np.zeros(1)
-    prediction = ""
+
     UPLOAD_FOLDER = current_app.config["UPLOAD_FOLDER"]
+    APP_FOLDER = current_app.config["APP_FOLDER"]
+    img_filename = ""
+    prediction = ""
+    audio_sequence = np.zeros(1)
 
     if request.method == "POST":
         current_app.logger.info("=== FORM RECEIVED ===")
@@ -76,11 +82,11 @@ def predict_from_file():
             # Load ML model based on installed Tensorflow version (necessary to handle conda vs pip TF version)
             TF_ver = tensorflow.__version__
             if TF_ver == "2.3.0":
-                model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.3.0.tf")
                 current_app.logger.info("Tensorflow v2.3.0 (conda) detected, ML model audio_MNIST_v3-TF_v2.3.0.tf used.")
+                model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.3.0.tf")
             elif TF_ver == "2.7.0":
-                model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.7.0.tf")
                 current_app.logger.info("Tensorflow v2.7.0 (pip) detected, ML model audio_MNIST_v3-TF_v2.7.0.tf used.")
+                model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.7.0.tf")
             else:
                 current_app.logger.critical("App requires either Tensorflow v2.3.0 (conda) or Tensorflow 2.7.0 (pip) installed.")
                 flash("App requires either Tensorflow v2.3.0 (conda) or Tensorflow 2.7.0 (pip) installed.", category="error")
@@ -89,11 +95,60 @@ def predict_from_file():
             # Make prediction based on ML model and audio sequence input
             prediction = make_prediction(model, audio_sequence, model_input_dim)
 
-    return render_template("predict_from_file.html", model_prediction=prediction, user=current_user, audio=audio_sequence.tolist())
+            # Generate waveform picture
+            img_path = os.path.join(APP_FOLDER, "static", "client", img_filename)
+            img_filename = plot_audio(audio_sequence, label=audio_filename, path=img_path, sr=8000)
+
+    return render_template("predict_from_file.html", model_prediction=prediction, user=current_user, filename=img_filename)
+
+
+@views.route("/display/<filename>")
+@login_required
+def display_image(filename: str):
+    """Create dynamic URL with image filename as key
+
+    Args:
+        filename (str): Image filename
+
+    Returns:
+        flask: redirect to dynamic url (permanent ie code=301)
+    """
+    current_app.logger.debug("Image filename: %s", filename)
+    return redirect(url_for("static", filename=os.path.join("client", "img", filename)), code=301)
+
+
+def plot_audio(audio: complex, label: str, path: str, sr=8000) -> str:
+    """Generate a waveform plot of the audio signal
+
+    Args:
+        audio (numpy array): audio sequence (mono-channel)
+        label (str): [description]
+        path (str): path to image storage location on app backend server
+        sr (int, optional): sampling rate. Defaults to 8000.
+
+    Returns:
+        str: image filename (hard coded)
+    """
+    img_filename = "waveform.png"
+    img_path = os.path.join(path, img_filename)
+    fig, ax = plt.subplots()
+    duration = len(audio) / sr
+    t = np.linspace(0, duration, len(audio))
+    ax.plot(t, audio)
+    ax.set_title(label)
+    ax.set_xlabel("Time")
+    plt.savefig(img_path)
+    current_app.logger.info("Waveform chart saved in path: %s", img_path)
+    return img_filename
 
 
 def is_valid_filename(request_object: complex) -> bool:
-    current_app.logger.info("===== is_valid_filename =====")
+    """Check filename extension
+
+    Returns:
+        [render_template]: Render template object with prediction variable (int)
+    """
+    current_app.logger.info("Check filename extension")
     if request_object.filename == "":
         current_app.logger.error("No filename selected.")
         return False
@@ -126,6 +181,16 @@ def backend_save_request_object(request_object: complex, upload_path: str) -> No
 
 
 def is_valid_audio_file(audio_filename, upload_path):
+    """Check audio file format
+
+    Args:
+        filename (str):  audio wav filename
+        upload_path (str, optional): Upload folder path on backend server.
+
+    Returns:
+        Bool: True if file format is a wav audio, False otherwise
+    """
+
     current_app.logger.info("Checking audio file format.")
 
     path = os.path.join(upload_path, audio_filename)

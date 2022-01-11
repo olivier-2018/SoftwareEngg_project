@@ -3,90 +3,72 @@
 {% block title %}Single_digit_prediction_from_file{% endblock %}
 
 {% block content %}
+<style>
+
+.column {
+    float: left;
+    width: 50%;
+    }
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+    }
+
+</style>
+
   <br />
   <h2 align="center">Prediction</h1>
   <br />
-<!--
-    <head>
-        <meta charset="UTF-8">
-        <title>FHNW Software Engineering</title>
-        <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles/index.css') }}" />
-    </head>
 
-
-  <div id="audioFileContainer">
-    <h1>Upload a wav file</h1>
+<div  class="row">
+    <div  class="column">
         <form method="post" enctype="multipart/form-data">
-            <input type="file" name="file" />
+
+            <h3>Step 1 - Select a wav file</h3>
+
+            <div class="form-group col-lg-5" >
+                <label for="formFile" class="form-label">Select a wav audio file using the browse button below</label>
+                <input class="form-control" type="file" name="file" id="formFile">
+            </div>
             <br>
-            <input type="submit" id="submitButton" value="upload" />
+            <h3>Step 2 - Upload selected file</h3>
+            <div class="form-group col-lg-5" >
+                <input type="submit" class="btn btn-primary btn-sm" id="submitButton" value="upload" />
+            </div>
+
+
+
+            {% if model_prediction != "" %}
+            <br>
+            <h3>Step 3 - Running the ML model </h3>
+
+            <div class="card text-white bg-primary mb-3" style="max-width: 10rem;">
+                <div class="card-header">Prediction</div>
+                <div class="card-body">
+                <h4 class="card-title">{{ model_prediction }}</h4>
+                <p class="card-text"> </p>
+                </div>
+            </div>
+            {% endif %}
         </form>
+    </div >
 
-        {% if model_prediction != "" %}
-        <div id="audioPredictionContainer">
-            <h1>Prediction</h1>
-            <p id="predictionText">{{ model_prediction }}</p>
-        </div>
+    <div  class="column">
+        <h3>waveform</h3>
+
+
+        {% if filename %}
+            <div>
+                <img src="{{ url_for('views.display_image', filename=filename) }}">
+            </div>
         {% endif %}
-    </div>
--->
-<form method="post" enctype="multipart/form-data">
 
 
-<div  float:left ; width=60%>
-    <h3>Step 1 - Select a wav file</h3>
-
-    <div class="form-group col-lg-5" >
-        <label for="formFile" class="form-label">Select a wav audio file using the browse button below</label>
-        <input class="form-control" type="file" name="file" id="formFile">
-    </div>
-    <br>
-    <h3>Step 2 - Upload selected file</h3>
-    <div class="form-group col-lg-5" >
-        <input type="submit" class="btn btn-primary btn-sm" id="submitButton" value="upload" />
-    </div>
-
-<!--
-    {% if audio != "" %}
-        <script>
-            if (!window.audioContext) {
-                window.audioContext = new AudioContext();
-                window.playAudio = function(audioChannels, sr) {
-                    const buffer = audioContext.createBuffer(audioChannels.length, audioChannels[0].length, sr);
-                    for (let [channel, data] of audioChannels.entries()) {
-                        buffer.copyToChannel(Float32Array.from(data), channel);
-                    }
-
-                    const source = audioContext.createBufferSource();
-                    source.buffer = buffer;
-                    source.connect(audioContext.destination);
-                    source.start();
-                }
-            }
-        </script>
-        <button onclick="playAudio(json.dumps( {{ audio }} ), 8000)">Play</button>
-    {% endif %}
-    -->
-
-    </form>
-
-    {% if model_prediction != "" %}
-    <br>
-    <h3>Step 3 - Running the ML model </h3>
-
-
-
-    <div class="card text-white bg-primary mb-3" style="max-width: 10rem;">
-        <div class="card-header">Prediction</div>
-        <div class="card-body">
-          <h4 class="card-title">{{ model_prediction }}</h4>
-          <p class="card-text"> </p>
-        </div>
-    </div>
-    {% endif %}
-
-</div>
+    </div >
+</div >
 
 
 {% endblock %}
