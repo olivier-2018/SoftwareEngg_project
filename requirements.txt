@@ -6,6 +6,7 @@ flask_login
 flask_sqlalchemy
 gunicorn
 librosa
+matplotlib
 pre-commit
 pytest
 requests
