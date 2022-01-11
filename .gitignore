@@ -1,5 +1,6 @@
-# Python
+# Python files and folders
 *.pyc
+__pycache__
 
 # VS code
 .vscode/
@@ -11,5 +12,14 @@ venv/
 # audio files
 *.wav
 
-# log file
+# log files
 *.log
+
+# databases
+*.db
+
+# pytest
+.pytest_cache
+
+# images
+waveform.png

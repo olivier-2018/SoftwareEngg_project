@@ -1,6 +1,7 @@
-from src_api import app
+from src_api import create_app
 
+
+app = create_app()
 
 if __name__ == "__main__":
-    app.env = "development"
     app.run(debug=True)
