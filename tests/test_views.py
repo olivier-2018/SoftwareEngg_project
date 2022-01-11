@@ -4,10 +4,13 @@ from flask_login import current_user
 from flask import current_app
 from src_api.views import *
 from flask.app import Flask
+
+
 app = Flask(__name__)
 with app.app_context():
 
-    TEST_FOLDER_NAME = os.path.join(app.config["APP_FOLDER"], "tests", "testfiles")
+    TEST_FOLDER_NAME = os.path.join("..","tests", "testfiles")
+    #TEST_FOLDER_NAME = os.path.join(current_app.config["APP_FOLDER"], "tests", "testfiles")
 
 
     def list_of_files(file_name: str):
