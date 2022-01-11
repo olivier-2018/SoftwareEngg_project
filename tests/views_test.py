@@ -1,17 +1,17 @@
 from enum import Flag
 from re import sub
-
-from flask.app import Flask
+from flask.app import Flask, session
 from src_api.views import *
 import shutil
 import os
-from flask import current_app  
-from tests.test_views import list_of_files, list_of_files_item
+from flask import current_app
+from tests.test_views import  list_of_files, list_of_files_item
+    
+TEST_FOLDER_NAME = os.path.join("..","tests", "testfiles")
+#TEST_FOLDER_NAME = os.path.join(current_app.config["APP_FOLDER"], "tests", "testfiles")
 
 app = Flask(__name__)
 with app.app_context():
-
-    TEST_FOLDER_NAME = os.path.join(app.config["APP_FOLDER"], "tests", "testfiles")
 
 
     def folder_files_basics(file_name: str):
