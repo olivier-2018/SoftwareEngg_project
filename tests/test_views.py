@@ -1,9 +1,11 @@
 import os
 import pytest
+from flask_login import current_user
+from flask import current_app
 from src_api.views import *
 
 
-TEST_FOLDER_NAME = os.path.join(app.config["APP_FOLDER"], "tests", "testfiles")
+TEST_FOLDER_NAME = os.path.join(current_app.config["APP_FOLDER"], "tests", "testfiles")
 
 
 def list_of_files(file_name: str):
