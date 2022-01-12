@@ -22,7 +22,7 @@ def create_app():
         try:
             os.remove(log_file)
             os.unlink(log_file)
-        except SystemError:
+        except (SystemError, FileNotFoundError):
             pass
 
     file_handler = logging.FileHandler(log_file)
