@@ -180,7 +180,7 @@ def backend_save_request_object(request_object: complex, upload_path: str) -> No
     return None
 
 
-def is_valid_audio_file(audio_filename, upload_path):
+def is_valid_audio_file(audio_filename: str, upload_path: str) -> bool:
     """Check audio file format
 
     Args:

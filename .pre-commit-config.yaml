@@ -6,7 +6,6 @@ repos:
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
     -   id: check-json
-    -   id: name-tests-test
     -   id: requirements-txt-fixer
 -   repo: local
     hooks:
@@ -33,5 +32,5 @@ repos:
           flake8
           --max-line-length=150
           --per-file-ignores="__init__.py:E402,F401"
-          --ignore=F403,F405,F841,W503
+          --ignore=F403,F405,F841,W503,E203
         types: [python]

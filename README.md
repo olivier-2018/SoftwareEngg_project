@@ -47,10 +47,11 @@ pip install -r requirements.txt
 Linux:
 export FLASK_APP=run.py
 export FLASK_ENV=development (or production, or testing as required)
-
+export SECRETE_KEY="<whatever you want>" (optional, Flask will assign a secret hash if unset)
 Windows powershell:
 $env:FLASK_APP = 'run.py'
 $env:FLASK_ENV = 'development' (or 'production', or 'testing' as required)
+$env: SECRETE_KEY = <whatever you want> (optional, Flask will assign a secret hash if unset)
 ```
 - Launch the API locally:
 ```sh
@@ -62,5 +63,5 @@ flask run
  ### Testing:
 - Testing functions are located in the tests folder. Testing is automatic as part of the CI/CD pipeline but can also be ran manually using the command:
 ```sh
-pytest -v
+pytest -vrxXs
 ```

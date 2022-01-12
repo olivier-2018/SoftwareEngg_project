@@ -1,3 +1,7 @@
+import os
+import secrets
+
+
 class Config:
     """
     Base configuration class. Contains default configuration settings + configuration settings applicable to all environments.
@@ -11,8 +15,8 @@ class Config:
 
     ALLOWED_EXTENSIONS = set(["wav"])
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # SECRET_KEY = os.getenv("SECRET_KEY", default="p9?nR-$wv=7$ruz7*v$peçG=ozcA7e£S22o-Pic46_tMb?o4+z8YtruweB=033706")
-    # SESSION_COOKIE_SECURE = True
+    SECRET_KEY = os.getenv("SECRET_KEY", default=secrets.token_urlsafe(128))
+    SESSION_COOKIE_SECURE = True
 
 
 class DevelopmentConfig(Config):
