@@ -10,8 +10,10 @@ from tests.test_views import  list_of_files, list_of_files_item
 app = Flask(__name__)
 with app.app_context():
 
-    TEST_FOLDER_NAME = os.path.join("..","tests", "testfiles")
-    #TEST_FOLDER_NAME = os.path.join(current_app.config["APP_FOLDER"], "tests", "testfiles")
+    #TEST_FOLDER_NAME = os.path.join("..","tests", "testfiles")
+    APP_FOLDER = os.path.realpath(os.path.join(os.path.dirname(__file__)))
+    #APP_FOLDER = current_app.config["APP_FOLDER"]
+    TEST_FOLDER_NAME = os.path.join(APP_FOLDER)
 
 
     def folder_files_basics(file_name: str):
@@ -92,4 +94,4 @@ def test_backend_file_delete():
                 assert os.path.exists(os.path.join(TEST_FOLDER_NAME, file_name_copy)) == 0
             else:
                 continue
-        return None
+            return None
