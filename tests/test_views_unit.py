@@ -64,7 +64,7 @@ def test_backend_file_delete(filename: str, testfile_path: str) -> bool:
         copyfile = "copy_" + filename
         testfile_path_full = os.path.join(flask_app.config["APP_FOLDER"], "tests", "testfiles")
         shutil.copyfile(os.path.join(testfile_path_full, filename), os.path.join(testfile_path_full, copyfile))
-        backend_file_delete(copyfile, testfile_path)
+        backend_file_delete(copyfile, testfile_path_full)
 
         assert os.path.exists(os.path.join(testfile_path, copyfile)) == 0
 

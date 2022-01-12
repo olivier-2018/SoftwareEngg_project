@@ -12,18 +12,17 @@ def create_app():
     app = Flask(__name__, template_folder=os.path.join("..", "templates"), static_folder=os.path.join("..", "static"))
 
     # Setting the app logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(levelname)s:%(name)s:%(module)s.py:%(funcName)s:line %(lineno)d => %(message)s")
-    # logging.Formatter("%(levelname)s:%(name)s:%(threadName)s:%(message)s:%(module)s:%(funcName)s:%(lineno)d")
     log_file = "app.log"
-
     if os.path.exists(log_file):
         try:
             os.remove(log_file)
-            os.unlink(log_file)
+            print("app.log detected and removed. New log file created.")
         except (SystemError, FileNotFoundError):
-            pass
+            print("Could not remove the app.log, will append logs to file.")
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(levelname)s:%(name)s:%(module)s.py:%(funcName)s:line %(lineno)d => %(message)s")
 
     file_handler = logging.FileHandler(log_file)
     file_handler.setFormatter(formatter)
@@ -50,9 +49,7 @@ def create_app():
     app.logger.info("%s environment detected.", app.config["ENV"])
 
     # Initializing database
-    app.config["SECRET_KEY"] = "hjshjhdjah kjshkjdhjs"
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_NAME}"
-
     db.init_app(app)
     app.logger.info("Database initialized.")
 
