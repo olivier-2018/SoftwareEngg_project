@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Single_digit_prediction_from_microphone{% endblock %}
+
+{% block content %}
+<script src="static/js/recorder.js"></script>
+<!-- <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script> -->
+<script src="static/js/app.js"></script>
+
+<style>
+
+    .column {
+        float: left;
+        width: 50%;
+        }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+        }
+    #formats {
+        margin-top: 0.5rem;
+        font-size: 80%;
+        }
+
+        #recordingsList{
+            max-width: 28em;
+        }
+</style>
+
+
+  <br />
+  <h2 align="center">Prediction from recorded audio (in development)</h1>
+  <br />
+
+
+<div  class="row">
+    <div  class="column">
+
+        <h3>Step 1 - Record a wav file</h3>
+
+        <div id="controls">
+            <button id="recordButton">Record</button>
+            <button id="pauseButton" disabled>Pause</button>
+            <button id="stopButton" disabled>Stop</button>
+            </div>
+            <div id="formats">Format: start recording to see sample rate</div>
+            <p><strong>Recordings:</strong></p>
+            <ol id="recordingsList"></ol>
+
+        <h3>Step 2 - Upload saved audio file back for prediction</h3>
+
+            <form method="post" enctype="multipart/form-data">
+
+                <div class="form-group col-lg-5" >
+                    <label for="formFile" class="form-label">Select a wav audio file using the browse button below</label>
+                    <input class="form-control" type="file" name="file" id="formFile">
+                </div>
+
+                <br>
+
+                <h3>Step 3 - Upload selected file</h3>
+                <div class="form-group col-lg-5" >
+                    <input type="submit" class="btn btn-primary btn-sm" id="submitButton" value="upload" />
+                </div>
+            </form>
+
+        {% if model_prediction != "" %}
+        <br>
+        <h3>Step 4 - Running the ML model </h3>
+
+        <div class="card text-white bg-primary mb-3" style="max-width: 10rem;">
+            <div class="card-header">Prediction</div>
+            <div class="card-body">
+            <h4 class="card-title">{{ model_prediction }}</h4>
+            <p class="card-text"> </p>
+            </div>
+        </div>
+        {% endif %}
+
+    </div >
+
+    <div  class="column">
+        <h3>waveform</h3>
+
+
+        {% if filename %}
+            <div>
+                <img src="{{ url_for('views.display_image', filename=filename) }}">
+            </div>
+        {% endif %}
+
+
+    </div >
+</div >
+
+
+{% endblock %}

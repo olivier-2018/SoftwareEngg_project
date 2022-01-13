@@ -17,6 +17,7 @@ views = Blueprint("views", __name__)
 
 
 @views.route("/predict_from_file", methods=["GET", "POST"])
+@views.route("/predict_from_mic", methods=["GET", "POST"])
 @login_required
 def predict_from_file():
     """Makes a digit prediction by uploading a wav file using the audio MNIST ML model
@@ -71,7 +72,7 @@ def predict_from_file():
 
             # Load audio sequence
             audio_sequence = load_audio_sequence(
-                filename=audio_filename, upload_path=UPLOAD_FOLDER, sampling_rate=sampling_rate, max_seq_length=model_input_dim
+                filename=audio_filename, upload_path=UPLOAD_FOLDER, sampling_rate=8000, max_seq_length=model_input_dim
             )
 
             # Supress audio file on backend server
@@ -100,7 +101,14 @@ def predict_from_file():
             img_path = os.path.join(APP_FOLDER, "static", "client", img_filename)
             img_filename = plot_audio(audio_sequence, label=audio_filename, path=img_path, sr=8000)
 
-    return render_template("predict_from_file.html", model_prediction=prediction, user=current_user, filename=img_filename)
+    URL_rule = request.url_rule
+    current_app.logger.debug("Endpoint detected: %s", URL_rule)
+
+    if "file" in URL_rule.rule:
+        return render_template("predict_from_file.html", model_prediction=prediction, user=current_user, filename=img_filename)
+
+    elif "mic" in URL_rule.rule:
+        return render_template("predict_from_mic.html", model_prediction=prediction, user=current_user, filename=img_filename)
 
 
 @views.route("/display/<filename>")
