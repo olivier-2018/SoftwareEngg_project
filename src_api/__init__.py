@@ -17,7 +17,7 @@ def create_app():
         try:
             os.remove(log_file)
             print("app.log detected and removed. New log file created.")
-        except (SystemError, FileNotFoundError):
+        except (SystemError, FileNotFoundError, PermissionError):
             print("Could not remove the app.log, will append logs to file.")
 
     logger = logging.getLogger(__name__)
