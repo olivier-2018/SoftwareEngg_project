@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap_Cerulean.css') }}" /> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap_Cerulean.min.css') }}" />
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+
+    <title>{% block title %}Home{% endblock %}</title>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">FHNW-SoftwareEngineering</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+        data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarColor02">
+          <ul class="navbar-nav me-auto">
+
+            <li class="nav-item active">
+              <a class="nav-item nav-link" id="home" href="/home">Home
+                <span class="visually-hidden">(current)</span>
+              </a>
+            </li>
+
+            {% if user.is_authenticated %}
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+              aria-expanded="false">Audio Prediction</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="/predict_from_file">Input from audio wav file (single digit)</a>
+           <!--     <a class="dropdown-item" href="#">Input from audio wav file (multiple digit)</a> -->
+                <div class="dropdown-divider"></div>
+                <!-- <a class="dropdown-item" href="/predict_from_mic">Input from microphone (single digit) - WIP</a> -->
+            <!--    <a class="dropdown-item" href="#">Input from microphone (multiple digit)</a>   -->
+              </div>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
+            </li>
+
+            {% endif %}
+
+            <li class="nav-item">
+              <a class="nav-link" href="/about">About</a>
+            </li>
+          </ul>
+
+          {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-item nav-link" id="login" href="/login">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
+          </li>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          {% if category == 'error' %}
+            <div class="alert alert-danger alter-dismissable fade show" role="alert">
+              {{ message }}
+              <button type="button" class="close" data-dismiss="alert">
+              <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% else %}
+            <div class="alert alert-success alter-dismissable fade show" role="alert">
+              {{ message }}
+              <button type="button" class="close" data-dismiss="alert">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="container">{% block content %} {% endblock %}</div>
+
+
+
+  </body>
+</html>
