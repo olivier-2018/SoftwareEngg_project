@@ -1,6 +1,7 @@
 from flask import Blueprint, current_app, redirect, render_template, request, flash, url_for
 from flask_login import login_required, current_user
 import os
+import shutil
 import pathlib
 import librosa
 import numpy as np
@@ -122,7 +123,7 @@ def plot_audio(audio: complex, label: str, path: str, sr=8000) -> str:
 
     Args:
         audio (numpy array): audio sequence (mono-channel)
-        label (str): [description]
+        label (str): Audio filename read
         path (str): path to image storage location on app backend server
         sr (int, optional): sampling rate. Defaults to 8000.
 
@@ -139,6 +140,11 @@ def plot_audio(audio: complex, label: str, path: str, sr=8000) -> str:
     ax.set_xlabel("Time")
     plt.savefig(img_path)
     current_app.logger.info("Waveform chart saved in path: %s", img_path)
+
+    img_path_copy = os.path.join(path, "img", img_filename)
+    shutil.copyfile(img_path, img_path_copy)
+    current_app.logger.debug("url_for bug: Image copied in path: %s", img_path)
+
     return img_filename
 
 
