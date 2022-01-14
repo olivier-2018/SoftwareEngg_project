@@ -5,9 +5,9 @@ name: Python application
 
 on:
   push:
-    branches: [ main, development, dev_user_login_feature]
+    branches: [ main, development]
   pull_request:
-    branches: [ main, development, dev_user_login_feature]
+    branches: [ main, development]
 
 jobs:
   build:
@@ -37,11 +37,19 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-    - name: Deploy to Heroku
+    - name: Deploy to Heroku (Prod)
+      if: github.ref == 'refs/heads/main' && job.status == 'success' && github.event_name == 'push'
       env:
         HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
         SOFTWARE_ENGG_HEROKU_APP_NAME: ${{ secrets.SOFTWARE_ENGG_HEROKU_APP_NAME }}
-      if: github.ref == 'refs/heads/main' && job.status == 'success'
+      run: |
+        git remote add heroku https://heroku:$HEROKU_API_TOKEN@git.heroku.com/$SOFTWARE_ENGG_HEROKU_APP_NAME.git
+        git push heroku HEAD:master -f
+    - name: Deploy to Heroku (Dev)
+      if: github.ref == 'refs/heads/development' && job.status == 'success' && github.event_name == 'push'
+      env:
+        HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
+        SOFTWARE_ENGG_HEROKU_APP_NAME: ${{ secrets.SOFTWARE_ENGG_HEROKU_APP_NAME_DEV }}
       run: |
         git remote add heroku https://heroku:$HEROKU_API_TOKEN@git.heroku.com/$SOFTWARE_ENGG_HEROKU_APP_NAME.git
         git push heroku HEAD:master -f
