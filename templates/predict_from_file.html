@@ -48,9 +48,13 @@
             <div class="card text-white bg-primary mb-3" style="max-width: 10rem;">
                 <div class="card-header">Prediction</div>
                 <div class="card-body">
-                <h4 class="card-title">{{ model_prediction }}</h4>
-                <p class="card-text"> </p>
+                    <h4 class="card-title">{{ model_prediction }}</h4>
+                    <p class="card-text"> </p>
                 </div>
+            </div>
+            <br>
+            <div>
+                <p><strong>Disclaimer</strong> the ML model was trained to a 94% test accuracy but does not generalize on all real life test cases due to the reduced dataset size. </p>
             </div>
             {% endif %}
         </form>

@@ -53,33 +53,38 @@ def predict_from_file():
         if not is_valid_audio_file(audio_filename, upload_path=UPLOAD_FOLDER):
 
             flash("Invalid file format (not an audio wav file)", category="error")
+            current_app.logger.info("Invalid file format (not an audio wav file).")
             return redirect(request.url)
 
         else:
 
-            # Process audio file if required (future app developments)
-            # waveform, sr_read = backend_rawfile_load (audio_filename, upload_path=UPLOAD_FOLDER)
+            # Read raw audio file
+            waveform, sr_read = backend_rawfile_load(audio_filename, upload_path=UPLOAD_FOLDER)
 
             # Query basic audio characteristics
-            sampling_rate = get_sampling_rate(audio_filename, upload_path=UPLOAD_FOLDER)
-            duration = get_duration(audio_filename, upload_path=UPLOAD_FOLDER)
+            # sampling_rate = get_sampling_rate(audio_filename, upload_path=UPLOAD_FOLDER)
+            # duration = get_duration(audio_filename, upload_path=UPLOAD_FOLDER)
 
-            # Set ML model input layer dimensional constraint
+            # Set ML model constraints (hard coded)
             model_input_dim = 8000
+            model_sampling_rate = 8000
 
             # Adjust sampling rate if required (future app developments)
             # new_sampling_rate = int(model_input_dim / duration)
 
-            # Load audio sequence
-            audio_sequence = load_audio_sequence(
-                filename=audio_filename, upload_path=UPLOAD_FOLDER, sampling_rate=8000, max_seq_length=model_input_dim
-            )
-
-            # Supress audio file on backend server
-            backend_file_delete(audio_filename, upload_path=UPLOAD_FOLDER)
+            # Process audio file if required (future app developments)
+            audio_sequence = audio_process(waveform, sr=sr_read, model_dim=model_input_dim, model_sr=model_sampling_rate)
 
             # Save processed audio sequence (DEBUG for future app developments)
             # sf.write('test.wav', audio_sequence, new_sampling_rate, 'PCM_16')
+
+            # Load audio sequence
+            # audio_sequence = load_audio_sequence(
+            #     filename=audio_filename, upload_path=UPLOAD_FOLDER, sampling_rate=8000, max_seq_length=model_input_dim
+            # )
+
+            # Supress audio file on backend server
+            backend_file_delete(audio_filename, upload_path=UPLOAD_FOLDER)
 
             # Load ML model based on installed Tensorflow version (necessary to handle conda vs pip TF version)
             TF_ver = tensorflow.__version__
@@ -95,7 +100,7 @@ def predict_from_file():
                 return redirect(request.url)
 
             # Make prediction based on ML model and audio sequence input
-            prediction = make_prediction(model, audio_sequence, model_input_dim)
+            prediction = make_prediction(audio_sequence, model, model_input_dim)
 
             # Generate waveform picture
             img_path = os.path.join(APP_FOLDER, "static", "client", img_filename)
@@ -124,6 +129,56 @@ def display_image(filename: str):
     """
     current_app.logger.debug("Image filename: %s", filename)
     return redirect(url_for("static", filename=os.path.join("client", "img", filename)), code=301)
+
+
+def audio_process(waveform, sr, model_dim=8000, model_sr=8000):
+    """Process audio signal to ensure it matches ML model constraints and requirements (sampling frequency and input layer dimension)
+
+    Args:
+        waveform (numpy array): raw audio sequence
+        sr (int): raw audio sampling rate (read from file)
+        model_dim (int): ML model input layer dimension. Default to 8000.
+        model_sr (int): ML model sampling frequency. Default to 8000.
+
+    Returns:
+        numpy array: process audio sequence, ready for ML model prediction.
+    """
+    current_app.logger.info("===== audio_processing =====")
+
+    audio_sequence = np.zeros(model_dim)
+
+    duration = librosa.get_duration(waveform, sr)
+    audio_seq_length = waveform.shape[0]
+    current_app.logger.debug("input signal: sequence_length= %s, sampling rate=%s, duration=%s", audio_seq_length, sr, duration)
+
+    if not sr == model_sr:
+        waveform = librosa.resample(waveform, sr, model_sr)
+        audio_seq_length = waveform.shape[0]
+        duration = librosa.get_duration(waveform, model_sr)
+        current_app.logger.debug("resampled signal: sequence_length= %s, sampling rate=%s, duration=%s", audio_seq_length, model_sr, duration)
+
+    if audio_seq_length > model_dim:
+        trimmed_waveform, indexes = librosa.effects.trim(waveform, top_db=35, frame_length=256, hop_length=64)
+        trimmed_signal_length = indexes[1] - indexes[0]
+
+        current_app.logger.debug("audio sequence longer than model input dimension... Trimming audio signal to dim: %s", trimmed_waveform.shape)
+
+        if trimmed_signal_length < model_dim:
+            int(trimmed_signal_length / 2)
+            # audio_sequence[start_idx: start_idx+trimmed_signal_length] = trimmed_waveform
+            audio_sequence[:trimmed_signal_length] = trimmed_waveform
+            current_app.logger.debug("Trimmed signal shorter than model input dimension... centering signal.")
+        else:
+            current_app.logger.debug("Trimmed signal still longer than model input dimension... signal will be truncated.")
+            audio_sequence = trimmed_waveform[:model_dim]
+    else:
+        current_app.logger.debug("Audio signal shorter than model input dimension... centering signal.")
+        int(audio_seq_length / 2)
+        # audio_sequence[start_idx: start_idx+audio_seq_length]  = waveform
+        audio_sequence[:audio_seq_length] = waveform
+    current_app.logger.debug("Audio_sequence adjusted to model input layer shape %s", audio_sequence.shape)
+
+    return audio_sequence
 
 
 def plot_audio(audio: complex, label: str, path: str, sr=8000) -> str:
@@ -237,8 +292,8 @@ def backend_rawfile_load(filename: str, upload_path: str) -> complex:
     current_app.logger.info("===== backend_rawfile_load =====")
     path = os.path.join(upload_path, filename)
     waveform, sr_read = librosa.core.load(path, sr=None)
-    current_app.logger.debug("Loading waveform of type: %s , shape: %s and sampling rate: %s", type(waveform), waveform.shape, sr_read)
-    return waveform
+    current_app.logger.debug("Loading waveform %s of type: %s , shape: %s and sampling rate: %s", filename, type(waveform), waveform.shape, sr_read)
+    return waveform, sr_read
 
 
 def backend_file_load(filename: str, upload_path: str, sampling_rate: int = None) -> complex:
@@ -360,7 +415,7 @@ def load_ML_model(model_path: str = "/ML_model/audio_MNIST_v1.tf") -> complex:
     return model
 
 
-def make_prediction(model, audio_sequence, model_input_dim: str = 8000) -> int:
+def make_prediction(audio_sequence, model=load_ML_model, model_input_dim: str = 8000) -> int:
     """Generates a probability distribution corresponding to 0-9 digits from the provided audio sequence using the ML model.
         Returns the argmax of the probability distribution.
 
