@@ -122,7 +122,7 @@ function createDownloadLink(blob) {
 	var li = document.createElement('li');
 	var link = document.createElement('a');
 
-	//name of .wav file to use during upload and download (without extendion)
+	//name of .wav file to use during upload and download (without extension)
 	var filename = new Date().toISOString();
 
 	//add controls to the <audio> element
@@ -156,7 +156,7 @@ function createDownloadLink(blob) {
 		  };
 		  var fd=new FormData();
 		  fd.append("audio_data",blob, filename);
-		  xhr.open("POST","upload.php",true);
+		  xhr.open("POST","static/php/upload.php",true);
 		  xhr.send(fd);
 	})
 	li.appendChild(document.createTextNode (" "))//add a space in between

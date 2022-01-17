@@ -56,10 +56,12 @@ def create_app():
     # Importing routes
     from .views import views
     from .auth import auth
+    from .misc import misc
     from .models import User
 
     app.register_blueprint(views, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/")
+    app.register_blueprint(misc, url_prefix="/")
     app.logger.info("Blueprints registered.")
 
     # Initializing database file if needed

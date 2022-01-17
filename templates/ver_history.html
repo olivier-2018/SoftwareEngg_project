@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Version history{% endblock %}
+
+{% block content%}
+<style>
+  .center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 70%;
+  }
+</style>
+
+<br /><br /><br /><br />
+<h3 align="left">Version history</h3>
+<br /><br />
+
+<legend><b>version 3.2 (Dev):</b></legend>
+<figure>
+  <blockquote class="blockquote">
+    <li>Added app version display and log and version history web pages.</li>
+    <li>Created new Blueprint, re-arranged file structures.</li>
+  </blockquote>
+</figure>
+
+<legend><b>version 3.1:</b></legend>
+<figure>
+  <blockquote class="blockquote">
+    <li>Improved audio processing to better handle different audio sampling rates.</li>
+  </blockquote>
+</figure>
+
+<legend><b>version 3.0:</b></legend>
+<figure>
+  <blockquote class="blockquote">
+    <li>Added single digit prediction from microphone.</li>
+  </blockquote>
+</figure>
+
+<legend><b>version 2.2 (Production):</b></legend>
+<figure>
+  <blockquote class="blockquote">
+    <li>Added app version tab.</li>
+  </blockquote>
+</figure>
+
+<legend><b>version 2.1:</b></legend>
+<figure>
+  <blockquote class="blockquote">
+    <li>Added waveform picture to audio prediction.</li>
+    <li>Added deployment of Prod and Dev versions to different cloud platform addresses.</li>
+  </blockquote>
+</figure>
+
+<legend><b>version 2.0:</b></legend>
+<figure>
+  <blockquote class="blockquote">
+    <li>Added user login support.</li>
+    <li>Added front-end interface.</li>
+  </blockquote>
+</figure>
+
+
+{% endblock %}
