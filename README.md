@@ -23,24 +23,17 @@
 - Use augmented / additional data to improve generalization on model prediction (male/female voices, accents, etc).
 
 ### Getting started:
-- Use virtualenv package to create a virtual python environment:
+- Environment setup :
 ```sh
+# Use virtualenv package to create a virtual python environment:
 sudo apt-get install python-virtualenv
-```
-- Clone the repository:
-```sh
-git clone git@github.com:olivier-2018/SoftwareEngg_project.git
-```
-- Create a virtual environment within the repo:
-```sh
+# Clone the repository:
+git clone git@github.com:olivier-2018/SoftwareEngg_project.git  --branch development
+# Create a virtual environment within the repo:
 virtualenv venv
-```
-- Activate the virtual environment:
-```sh
+# Activate the virtual environment:
 source venv/bin/activate
-```
-- Install dependencies:
-```sh
+# Install dependencies:
 pip install -r requirements.txt
 ```
 - Set Flask environment variables:
@@ -70,3 +63,37 @@ flask run
 ```sh
 pytest -vrxXs
 ```
+
+ ### Illustrations:
+ #### Welcome screen
+ <image src="./static/img/1_welcome_screen.png" alt="Welcome screen">
+
+ #### Sign-up screen
+ <image src="./static/img/2_sign-up.png" alt="Sign-up screen">
+
+ #### Welcome screen
+ <image src="./static/img/3_sign-in_screen.png" alt="Sign-in screen">
+
+ #### Sign-in screen
+ <image src="./static/img/3_successful_login.png" alt="Login screen">
+
+ #### App selection
+ <image src="./static/img/4_app_selection.png" alt="App selection">
+
+ #### API call and results
+ <image src="./static/img/5_API_call_and_resut.png" alt="API call and results">
+
+ #### User profile screen
+ <image src="./static/img/6_user_profile_screen.png" alt="User profile screen">
+
+ #### App version screen
+ <image src="./static/img/7_version_history_screen.png" alt="App version screen">
+
+ #### Information screen
+ <image src="./static/img/8_about_screen.png" alt="Information screen">
+
+#### Tests
+ <image src="./static/img/9_unit_fcnal_tests.png" alt="tests info">
+
+#### CI/CD & deployment
+ <image src="./static/img/10_CICD_deployment.png" alt="CICD info">
