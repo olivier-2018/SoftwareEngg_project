@@ -65,10 +65,7 @@ pytest -vrxXs
 ```
 
  ### Demo
- <video width="1280" height="720" controls>
-  <source src="static/video/SoftwareEngg_project_demo.mp4" type="video/mp4">
-</video>
-<!-- <video src="static/video/SoftwareEngg_project_demo.mp4" width="1280" height="720" controls></video> -->
+![Demo](static/video/SoftwareEngg_project_demo_HR.gif)
 
  ### Illustrations:
  #### Welcome screen
