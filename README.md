@@ -64,7 +64,11 @@ flask run
 pytest -vrxXs
 ```
 
+ ### Demo
+<video src="static/video/SoftwareEngg_project_demo.mp4" width="1280" height="720" controls></video>
+
  ### Illustrations:
+
  #### Welcome screen
  <image src="./static/img/1_welcome_screen.png" alt="Welcome screen">
 
