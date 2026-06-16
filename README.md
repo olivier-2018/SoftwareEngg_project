@@ -84,7 +84,8 @@ cp .env.example .env
 #   SECRET_KEY=<generate-a-secure-key>
 
 # Build and run the containerized app:
-docker compose up -d --build
+docker compose build --no-cache
+docker compose up -d 
 
 # The app listens on port 5003. Configure a reverse proxy (e.g., nginx)
 # to forward traffic to the container and handle HTTPS/TLS termination.

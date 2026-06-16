@@ -1,17 +1,22 @@
 services:
   app:
+    build:
+        context: .
+        dockerfile: Dockerfile
     image: softwareengg-app:latest
-    build: .
     container_name: softwareengg-app
+    restart: unless-stopped
     env_file: .env
     # Expose port to host only in local Dev
-    # ports:
-      # - "5003:5003"
+    ports:
+      - "5003:5003"
     volumes:
-      - sqlite_db:/app
-      - upload_space:/app/static/client/wav
-    restart: unless-stopped
+      - ./sqlite_db:/app/sqlite_db
+      - ./upload_space:/app/static/client/wav
+    networks: [ "contado_net" ]
 
-volumes:
-  sqlite_db:
-  upload_space:
+networks:
+   contado_net:
+      name: contado_net
+      driver: bridge
+      external: true

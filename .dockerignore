@@ -8,3 +8,5 @@ static/client/wav/*
 tests/
 .pytest_cache
 .github
+upload_space/
+sqlite_db/

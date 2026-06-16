@@ -24,3 +24,7 @@ venv/
 
 # images
 waveform.png
+
+# Docker local volume
+upload_space/
+sqlite_db/
