@@ -1,10 +1,12 @@
 services:
   app:
+    image: softwareengg-app:latest
     build: .
     container_name: softwareengg-app
     env_file: .env
-    ports:
-      - "5003:5003"
+    # Expose port to host only in local Dev
+    # ports:
+      # - "5003:5003"
     volumes:
       - sqlite_db:/app
       - upload_space:/app/static/client/wav
