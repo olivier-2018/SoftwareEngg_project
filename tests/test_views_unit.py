@@ -107,7 +107,7 @@ def test_load_ML_model(TF_version: str, model_name: str) -> bool:
     Test if TF model loads correctly
     """
     with flask_app.app_context():
-        model_path = "/ML_model/audio_MNIST_v3-TF_" + TF_version + ".tf"
+        model_path = "/ML_model/audio_MNIST_v3-TF_" + TF_version + ".tflite"
         model = load_ML_model(model_path)
 
         assert model.name == model_name

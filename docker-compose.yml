@@ -12,7 +12,6 @@ services:
       - "5003:5003"
     volumes:
       - ./sqlite_db:/app/sqlite_db
-      - ./upload_space:/app/static/client/wav
     networks: [ "contado_net" ]
 
 networks:

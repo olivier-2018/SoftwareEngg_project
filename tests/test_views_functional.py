@@ -32,7 +32,7 @@ def test_load_ML_model_1(filename: str, testfile_path: str, model_prediction: in
     The model was trained to 94% test accuracy but may not generalize perfectly on all test cases.
     """
     with flask_app.app_context():
-        model_path = "/ML_model/audio_MNIST_v3-TF_v2.7.0.tf"
+        model_path = "/ML_model/audio_MNIST_v3-TF_v2.7.0.tflite"
         model = load_ML_model(model_path)
         testfile_path_full = os.path.join(flask_app.config["APP_FOLDER"], "tests", "testfiles")
         audio_sequence = load_audio_sequence(filename, testfile_path_full, sampling_rate=8000, max_seq_length=8000)
@@ -66,7 +66,7 @@ def test_load_ML_model_2(filename: str, testfile_path: str, model_prediction: in
     The model was trained to 94% test accuracy but may not generalize perfectly on all test cases.
     """
     with flask_app.app_context():
-        model_path = "/ML_model/audio_MNIST_v3-TF_v2.3.0.tf"
+        model_path = "/ML_model/audio_MNIST_v3-TF_v2.3.0.tflite"
         model = load_ML_model(model_path)
         testfile_path_full = os.path.join(flask_app.config["APP_FOLDER"], "tests", "testfiles")
         audio_sequence = load_audio_sequence(filename, testfile_path_full, sampling_rate=8000, max_seq_length=8000)
@@ -90,7 +90,7 @@ def test_prediction_valid_digit(filename: str, testfile_path: str) -> bool:
     Test that the prediction pipeline returns a valid digit (0-9)
     """
     with flask_app.app_context():
-        model_path = "/ML_model/audio_MNIST_v3-TF_v2.7.0.tf"
+        model_path = "/ML_model/audio_MNIST_v3-TF_v2.7.0.tflite"
         model = load_ML_model(model_path)
         testfile_path_full = os.path.join(flask_app.config["APP_FOLDER"], "tests", "testfiles")
         audio_sequence = load_audio_sequence(filename, testfile_path_full, sampling_rate=8000, max_seq_length=8000)

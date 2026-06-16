@@ -19,6 +19,12 @@ function startRecording() {
   pauseButton.disabled = false;
   audioChunks = [];
 
+  // Clear previous prediction
+  const predictionDiv = document.querySelector(".card.text-white.bg-primary");
+  if (predictionDiv) {
+    predictionDiv.parentElement.remove();
+  }
+
   navigator.mediaDevices
     .getUserMedia({ audio: true, video: false })
     .then(function (stream) {

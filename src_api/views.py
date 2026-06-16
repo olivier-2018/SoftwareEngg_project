@@ -6,7 +6,7 @@ import pathlib
 import librosa
 import numpy as np
 from werkzeug.utils import secure_filename
-import tensorflow
+from ai_edge_litert.interpreter import Interpreter
 import soundfile as sf
 import matplotlib
 import matplotlib.pyplot as plt
@@ -90,8 +90,8 @@ def predict_from_file():
             backend_file_delete(audio_filename, upload_path=UPLOAD_FOLDER)
 
             # Load ML model
-            current_app.logger.info("Loading ML model audio_MNIST_v3-TF_v2.7.0.tf (TensorFlow v%s).", tensorflow.__version__)
-            model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.7.0.tf")
+            current_app.logger.info("Loading ML model audio_MNIST_v3-TF_v2.7.0.tflite.")
+            model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.7.0.tflite")
 
             # Make prediction based on ML model and audio sequence input
             prediction = make_prediction(audio_sequence, model, model_input_dim)
@@ -418,49 +418,40 @@ def play_sound():
     """Play audio wave sound (future development)"""
 
 
-def load_ML_model(model_path: str = "/ML_model/audio_MNIST_v1.tf") -> complex:
-    """Load tensorflow SavedModel serving signature for inference
+def load_ML_model(model_path: str = "/ML_model/audio_MNIST_v3-TF_v2.7.0.tflite") -> complex:
+    """Load TFLite model for inference
 
     Args:
-        model_path (str, optional): ML model folder path on backend server. Defaults to "/ML_model/audio_MNIST_v1.tf".
+        model_path (str, optional): ML model file path on backend server. Defaults to "/ML_model/audio_MNIST_v3-TF_v2.7.0.tflite".
 
     Returns:
-        tensorflow SavedModel concrete function: ML model to be used for prediction
+        SignatureModel: TFLite interpreter wrapper for prediction
     """
     current_app.logger.info("===== load_ML_model =====")
     path = current_app.config["APP_FOLDER"] + model_path
     current_app.logger.debug("model path: %s", path)
 
-    tensorflow.get_logger().setLevel("ERROR")
-    # Load only the serving graph, avoiding the optimizer state loading issue
-    import tensorflow as tf
-    from tensorflow.python.saved_model import loader
-    from tensorflow.python.saved_model import tag_constants
+    interpreter = Interpreter(model_path=path)
+    interpreter.allocate_tensors()
 
-    # Use the low-level loader to load only the serving graph
-    sess = tf.compat.v1.Session()
-    metagraph = loader.load(sess, [tag_constants.SERVING], path)
-    # Get the serving signature
-    signature = metagraph.signature_def[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
 
-    # Create a callable that uses this session and signature
     class SignatureModel:
-        def __init__(self, sess, sig, tag, model_path):
-            self.sess = sess
-            self.sig = sig
-            self.input_key = list(sig.inputs.keys())[0]
-            self.output_key = list(sig.outputs.keys())[0]
+        def __init__(self, interpreter, input_details, output_details, model_path):
+            self.interpreter = interpreter
+            self.input_index = input_details[0]["index"]
+            self.output_index = output_details[0]["index"]
             # Extract model name from path (e.g., "v2.3.0" → "functional_1", "v2.7.0" → "model")
             self.name = "functional_1" if "v2.3.0" in model_path else "model"
 
         def __call__(self, input_tensor):
-            input_name = self.sig.inputs[self.input_key].name
-            output_name = self.sig.outputs[self.output_key].name
-            result = self.sess.run(output_name, {input_name: input_tensor.numpy()})
-            return tf.constant(result)
+            self.interpreter.set_tensor(self.input_index, input_tensor)
+            self.interpreter.invoke()
+            return self.interpreter.get_tensor(self.output_index)
 
-    model = SignatureModel(sess, signature, tag_constants.SERVING, path)
-    current_app.logger.debug("ML model loaded via serving signature.")
+    model = SignatureModel(interpreter, input_details, output_details, path)
+    current_app.logger.debug("ML model loaded via TFLite interpreter.")
 
     return model
 
@@ -470,7 +461,7 @@ def make_prediction(audio_sequence, model=load_ML_model, model_input_dim: str = 
         Returns the argmax of the probability distribution.
 
     Args:
-        model (tensorflow model): Trained audio MNIST model (test accuracy~93%)
+        model (TFLite model): Trained audio MNIST model (test accuracy~93%)
         audio_sequence (numpy array, dtype=float64): Audio sequence used ML model input
         model_input_dim (int, optional): ML model input layer dimension . Defaults to 8000.
 
@@ -479,15 +470,10 @@ def make_prediction(audio_sequence, model=load_ML_model, model_input_dim: str = 
     """
     current_app.logger.info("===== make_prediction =====")
 
-    import tensorflow as tf
-    input_tensor = tf.constant(audio_sequence.reshape(1, model_input_dim, 1), dtype=tf.float32)
+    input_tensor = audio_sequence.reshape(1, model_input_dim, 1).astype(np.float32)
 
-    # Call the model (which is a SignatureModel wrapper around a TF1 session graph)
+    # Call the model (which is a SignatureModel wrapper around a TFLite interpreter)
     prediction_proba = model(input_tensor)
-
-    # Convert to numpy if needed
-    if hasattr(prediction_proba, 'numpy'):
-        prediction_proba = prediction_proba.numpy()
 
     current_app.logger.warning("Taking argmax of prediction probability.")
     prediction = np.argmax(prediction_proba)

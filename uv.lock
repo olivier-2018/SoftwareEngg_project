@@ -16,6 +16,33 @@ wheels = [
 ]
 
 [[package]]
+name = "ai-edge-litert"
+version = "2.1.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "backports-strenum" },
+    { name = "flatbuffers" },
+    { name = "numpy" },
+    { name = "protobuf" },
+    { name = "tqdm" },
+    { name = "typing-extensions" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d1/37/cf525a4ed6aff573b10a162b7bff19673e50ce6f45daac0a095dcd099a28/ai_edge_litert-2.1.5-cp312-cp312-macosx_12_0_arm64.whl", hash = "sha256:b62fd3d90e643bcc3e3a31885a7636b5662527d48c27154cf07793f26896f018", size = 9711976, upload-time = "2026-05-15T23:34:16.988Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/6f/b43fc56831ecc439a6e6eb0e1bfdffbfe6213e8c706aa421017dce1ac56b/ai_edge_litert-2.1.5-cp312-cp312-manylinux_2_27_aarch64.whl", hash = "sha256:1d282722cdfb70bb42d457f4bfe7789f88187ccadd73fea9f0107dce6e98fe45", size = 12867617, upload-time = "2026-05-15T23:11:22.759Z" },
+    { url = "https://files.pythonhosted.org/packages/c9/20/a76ba29b1c4c3009b5c64f4ec7f5fe5165104fe15481bd79b55927948541/ai_edge_litert-2.1.5-cp312-cp312-manylinux_2_27_x86_64.whl", hash = "sha256:f1c6d8db4382890881baeb8ed13c0802ada022e0b104b0db8fccf31353899ee0", size = 17570644, upload-time = "2026-05-15T23:05:33.664Z" },
+    { url = "https://files.pythonhosted.org/packages/82/fa/5399085daffd9949668d13a83a48db9f69af535ef9f9d06fdf71f0205321/ai_edge_litert-2.1.5-cp312-cp312-win_amd64.whl", hash = "sha256:6d2db6759188b12be9fd095468c3c7069c1bc7c128de78f42f862fb654d247ea", size = 17755006, upload-time = "2026-05-15T23:39:24.555Z" },
+    { url = "https://files.pythonhosted.org/packages/3d/fd/28f24305904954f31ee1a979eea39b670c6a1ab13cf6e5e4fe5f128e9eff/ai_edge_litert-2.1.5-cp313-cp313-macosx_12_0_arm64.whl", hash = "sha256:2af16685a4cc8923d9a89ee5c732b8c66ae2c4d0cb538dbcebba3b93afb662ca", size = 9713185, upload-time = "2026-05-15T23:34:19.431Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/88/e7e32b37f972b4877df788d1ad0995388f823d74dc2743b200bf71a25a53/ai_edge_litert-2.1.5-cp313-cp313-manylinux_2_27_aarch64.whl", hash = "sha256:57506e9e9b91ee04e4cf3e986d184b0c92f1aa9f510c32841835c0d719a7fbb5", size = 12867247, upload-time = "2026-05-15T23:11:24.667Z" },
+    { url = "https://files.pythonhosted.org/packages/7d/c1/5192c360a467dd6e09fa28388022c37bca5d9777e616da40dc5d517186a9/ai_edge_litert-2.1.5-cp313-cp313-manylinux_2_27_x86_64.whl", hash = "sha256:b7825e13454a90e7a4782ecdb6f6d987a2bcc9147aa90eb181193867bf696f24", size = 17570488, upload-time = "2026-05-15T23:05:36.078Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/ba/154599984a8eccbdd14bcd89fabc2e9cbdfcbf537a3c1ab08712c7ce7d02/ai_edge_litert-2.1.5-cp313-cp313-win_amd64.whl", hash = "sha256:602fc90f6baf396df0fe4b0317b35627305c2233beb48db194b79e7e420bafa7", size = 17755085, upload-time = "2026-05-15T23:39:26.901Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/51/34f0ad0def8b15093d602ca6904b129d3ab242ae4711c872190d5c95c010/ai_edge_litert-2.1.5-cp314-cp314-macosx_12_0_arm64.whl", hash = "sha256:597ea79f947452c79ca7e9dd7abfedad6179302851df4a4bb4c755069a2f5ffe", size = 9712496, upload-time = "2026-05-15T23:34:21.36Z" },
+    { url = "https://files.pythonhosted.org/packages/42/43/2b8ef317dca3096372cbf820aa5a3a6c8857dad67f31840a1e17a951e2d3/ai_edge_litert-2.1.5-cp314-cp314-manylinux_2_27_aarch64.whl", hash = "sha256:41d2e8267f047ed14f14a5ff4e0f677a9c5143dd17a36991513f8cc5ef580a3b", size = 12867899, upload-time = "2026-05-15T23:11:26.584Z" },
+    { url = "https://files.pythonhosted.org/packages/c2/d5/9640952de755409c84e09eec5d107675c59fe4f4859391464275eb2c3db6/ai_edge_litert-2.1.5-cp314-cp314-manylinux_2_27_x86_64.whl", hash = "sha256:4fa10d99b2f8647678850684d31075fbb304f50535d5788c2ca93e273ce727a8", size = 17570849, upload-time = "2026-05-15T23:05:37.981Z" },
+    { url = "https://files.pythonhosted.org/packages/0d/d4/0843e5a41bf71eb99ccd1e54714485df527bec19e8c8e679e1395176345d/ai_edge_litert-2.1.5-cp314-cp314-win_amd64.whl", hash = "sha256:14b35558bfce76146046cc2fc647f3fde97146e8b7622ea7fb02e85ac16cd906", size = 18380722, upload-time = "2026-05-15T23:39:29.365Z" },
+]
+
+[[package]]
 name = "astunparse"
 version = "1.6.3"
 source = { registry = "https://pypi.org/simple" }
@@ -107,6 +134,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c3/0b/70c277eef225133763bf05c02c88df182e57d5c5c0730d3998958096a82e/autoflake-2.3.3.tar.gz", hash = "sha256:c24809541e23999f7a7b0d2faadf15deb0bc04cdde49728a2fd943a0c8055504", size = 16515, upload-time = "2026-02-20T05:01:43.448Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/da/21/26f1680ec3a598ea31768f9ebcd427e42986d077a005416094b580635532/autoflake-2.3.3-py3-none-any.whl", hash = "sha256:a51a3412aff16135ee5b3ec25922459fef10c1f23ce6d6c4977188df859e8b53", size = 17715, upload-time = "2026-02-20T05:01:42.137Z" },
+]
+
+[[package]]
+name = "backports-strenum"
+version = "1.3.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/35/c7/2ed54c32fed313591ffb21edbd48db71e68827d43a61938e5a0bc2b6ec91/backports_strenum-1.3.1.tar.gz", hash = "sha256:77c52407342898497714f0596e86188bb7084f89063226f4ba66863482f42414", size = 7257, upload-time = "2023-12-09T14:36:40.937Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d6/50/56cf20e2ee5127b603b81d5a69580a1a325083e2b921aa8f067da83927c0/backports_strenum-1.3.1-py3-none-any.whl", hash = "sha256:cdcfe36dc897e2615dc793b7d3097f54d359918fc448754a517e6f23044ccf83", size = 8304, upload-time = "2023-12-09T14:36:39.905Z" },
 ]
 
 [[package]]
@@ -1830,6 +1866,7 @@ name = "softwareengg"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "ai-edge-litert" },
     { name = "flask" },
     { name = "flask-login" },
     { name = "flask-sqlalchemy" },
@@ -1840,7 +1877,6 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "requests" },
     { name = "soundfile" },
-    { name = "tensorflow-cpu" },
 ]
 
 [package.optional-dependencies]
@@ -1850,10 +1886,12 @@ dev = [
     { name = "flake8" },
     { name = "pre-commit" },
     { name = "pytest" },
+    { name = "tensorflow-cpu" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "ai-edge-litert", specifier = ">=2.1.5" },
     { name = "autoflake", marker = "extra == 'dev'", specifier = ">=2.3.3" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=26.5.1" },
     { name = "flake8", marker = "extra == 'dev'", specifier = ">=7.3.0" },
@@ -1869,7 +1907,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "soundfile", specifier = ">=0.12.0" },
-    { name = "tensorflow-cpu", specifier = ">=2.21.0" },
+    { name = "tensorflow-cpu", marker = "extra == 'dev'", specifier = ">=2.21.0" },
 ]
 provides-extras = ["dev"]
 
@@ -2039,6 +2077,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/b7/4d/08c89e34946fce2aec4fbb45c9016efd5f4d7f24af8e5d93296e935631d8/threadpoolctl-3.6.0.tar.gz", hash = "sha256:8ab8b4aa3491d812b623328249fab5302a68d2d71745c8a4c719a2fcaba9f44e", size = 21274, upload-time = "2025-03-13T13:49:23.031Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/32/d5/f9a850d79b0851d1d4ef6456097579a9005b31fea68726a4ae5f2d82ddd9/threadpoolctl-3.6.0-py3-none-any.whl", hash = "sha256:43a0b8fd5a2928500110039e43a5eed8480b918967083ea48dc3ab9f13c4a7fb", size = 18638, upload-time = "2025-03-13T13:49:21.846Z" },
+]
+
+[[package]]
+name = "tqdm"
+version = "4.68.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/85/05/0d5260f1f1ca784f4a4a0def9cbe6affe587f5b4025328d446c3d67765f4/tqdm-4.68.2.tar.gz", hash = "sha256:89c230e8dbc67c7615c142487111222f878c77427ea09549960f62389e258add", size = 171923, upload-time = "2026-06-09T13:26:42.539Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/eb/75/1a0392bcc21c44dcdf87b3cf2d137e7829be2c083a1e38d44efca3d57a16/tqdm-4.68.2-py3-none-any.whl", hash = "sha256:d4240441fb5353290b87d6a85968c9decc131a99b8c7faa28269d829de669ede", size = 78578, upload-time = "2026-06-09T13:26:40.731Z" },
 ]
 
 [[package]]

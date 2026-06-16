@@ -50,7 +50,10 @@ def create_app():
     app.logger.info("%s environment detected.", flask_env)
 
     # Initializing database
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_NAME}"
+    db_dir = os.path.join(app.config["APP_FOLDER"], "sqlite_db")
+    os.makedirs(db_dir, exist_ok=True)
+    db_path = os.path.join(db_dir, DB_NAME)
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
     db.init_app(app)
     app.logger.info("Database initialized.")
 
