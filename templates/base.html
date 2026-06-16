@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}" />
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap_Cerulean.css') }}" /> -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap_Cerulean.min.css') }}" />
 
@@ -29,7 +30,7 @@
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">FHNW-SoftwareEngineering v3.2</a>
+        <a class="navbar-brand" href="#">BTS Software-Engineering</a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
         data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +55,7 @@
                 <a class="dropdown-item" href="/predict_from_file">Input from audio wav file (single digit)</a>
            <!--     <a class="dropdown-item" href="#">Input from audio wav file (multiple digit)</a> -->
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/predict_from_mic">Input from microphone (single digit) - WIP</a>
+                <a class="dropdown-item" href="/predict_from_mic">Input from microphone (single digit)</a>
             <!--    <a class="dropdown-item" href="#">Input from microphone (multiple digit)</a>   -->
               </div>
             </li>
@@ -99,16 +100,16 @@
       {% if messages %}
         {% for category, message in messages %}
           {% if category == 'error' %}
-            <div class="alert alert-danger alter-dismissable fade show" role="alert">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" data-auto-dismiss="true">
               {{ message }}
-              <button type="button" class="close" data-dismiss="alert">
-              <span aria-hidden="true">&times;</span>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
               </button>
             </div>
           {% else %}
-            <div class="alert alert-success alter-dismissable fade show" role="alert">
+            <div class="alert alert-success alert-dismissible fade show" role="alert" data-auto-dismiss="true">
               {{ message }}
-              <button type="button" class="close" data-dismiss="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
@@ -119,9 +120,18 @@
 
     <div class="container">{% block content %} {% endblock %}</div>
 
-    <script src="static/js/recorder.js"></script>
-    <!-- <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script> -->
     <script src="static/js/app.js"></script>
+    <script>
+      // Auto-dismiss alerts after 1.5 seconds
+      document.querySelectorAll('.alert[data-auto-dismiss="true"]').forEach(function(alert) {
+        setTimeout(function() {
+          const closeBtn = alert.querySelector('.close');
+          if (closeBtn) {
+            closeBtn.click();
+          }
+        }, 1500);
+      });
+    </script>
 
   </body>
 </html>

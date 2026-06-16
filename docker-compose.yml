@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    container_name: softwareengg-app
+    env_file: .env
+    ports:
+      - "5003:5003"
+    volumes:
+      - sqlite_db:/app
+      - upload_space:/app/static/client/wav
+    restart: unless-stopped
+
+volumes:
+  sqlite_db:
+  upload_space:

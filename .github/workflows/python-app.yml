@@ -20,14 +20,14 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         git fetch --prune --unshallow
-    - name: Set up Python 3.8
+    - name: Set up Python 3.12
       uses: actions/setup-python@v2
       with:
-        python-version: "3.8"
+        python-version: "3.12"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -e .
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -37,19 +37,3 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-    - name: Deploy to Heroku (Prod)
-      if: github.ref == 'refs/heads/main' && job.status == 'success' && github.event_name == 'push'
-      env:
-        HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
-        SOFTWARE_ENGG_HEROKU_APP_NAME: ${{ secrets.SOFTWARE_ENGG_HEROKU_APP_NAME }}
-      run: |
-        git remote add heroku https://heroku:$HEROKU_API_TOKEN@git.heroku.com/$SOFTWARE_ENGG_HEROKU_APP_NAME.git
-        git push heroku HEAD:master -f
-    - name: Deploy to Heroku (Dev)
-      if: github.ref == 'refs/heads/development' && job.status == 'success' && github.event_name == 'push'
-      env:
-        HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
-        SOFTWARE_ENGG_HEROKU_APP_NAME: ${{ secrets.SOFTWARE_ENGG_HEROKU_APP_NAME_DEV }}
-      run: |
-        git remote add heroku https://heroku:$HEROKU_API_TOKEN@git.heroku.com/$SOFTWARE_ENGG_HEROKU_APP_NAME.git
-        git push heroku HEAD:master -f

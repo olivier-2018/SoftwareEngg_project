@@ -22,40 +22,75 @@
 - Use multiple digit audio prediction for user login.
 - Use augmented / additional data to improve generalization on model prediction (male/female voices, accents, etc).
 
-### Getting started:
-- Environment setup :
+### Getting started (Local Development):
+
+#### Environment Setup
+
+This project uses `uv` for fast, reliable dependency management. 
+
+**Install `uv`** (if not already installed):
 ```sh
-# Use virtualenv package to create a virtual python environment:
-sudo apt-get install python-virtualenv
+# On Linux/macOS using curl:
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# On Windows using PowerShell:
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Or via pip (any platform):
+pip install uv
+```
+
+**Clone and set up the project:**
+```sh
 # Clone the repository:
 git clone git@github.com:olivier-2018/SoftwareEngg_project.git  --branch development
-# Create a virtual environment within the repo:
-virtualenv venv
-# Activate the virtual environment:
-source venv/bin/activate
-# Install dependencies:
-pip install -r requirements.txt
-```
-- Set Flask environment variables:
-```sh
-Linux:
-export FLASK_APP=run.py
-export FLASK_ENV=development (or production, or testing as required)
-export SECRETE_KEY="<whatever you want>" (optional, Flask will assign a secret hash if unset)
+cd SoftwareEngg_project
 
-Windows powershell:
-$env:FLASK_APP = 'run.py'
-$env:FLASK_ENV = 'development' (or 'production', or 'testing' as required)
-$env: SECRETE_KEY = <whatever you want> (optional, Flask will assign a secret hash if unset)
-```
-- Launch the API locally:
-```sh
-flask run
-```
-*Note: on WSL you may need to export the display with an Xserver to run flask*
-- The API will automatically deploy to Heroku upon succesful build on the main branch.
+# Sync dependencies using uv (creates/updates .venv automatically):
+uv sync
 
-*Note: The Heroku app address is kept private not to reach the free account usage limit during the app development.*
+# Alternatively, if you prefer pip and manual venv:
+python -m venv venv
+# Activate: source venv/bin/activate (Linux/macOS) or venv\Scripts\activate (Windows)
+pip install -e .
+
+# Copy environment config template and customize:
+cp .env.example .env
+# Edit .env to add a SECRET_KEY if desired (a default is provided for local dev)
+```
+
+#### Running the Development Server
+```sh
+# The .env file automatically loads Flask configuration
+flask run --port 5003
+```
+
+The app will start on **http://localhost:5003** with **live reload enabled** (`FLASK_DEBUG=1` in .env) — changes to templates, static files, and Python code automatically reload in the browser.
+
+### Docker & VPS Deployment
+
+To deploy on a self-hosted VPS using Docker and Docker Compose:
+
+```sh
+# On your VPS, clone the repo and set up environment:
+git clone <repo-url>
+cd SoftwareEngg_project
+
+# Create production .env (do NOT commit this to git):
+cp .env.example .env
+# Edit .env with production values:
+#   FLASK_ENV=production
+#   FLASK_DEBUG=0
+#   SECRET_KEY=<generate-a-secure-key>
+
+# Build and run the containerized app:
+docker compose up -d --build
+
+# The app listens on port 5003. Configure a reverse proxy (e.g., nginx)
+# to forward traffic to the container and handle HTTPS/TLS termination.
+```
+
+**Important:** On a VPS, the app requires **HTTPS** for the microphone recording feature (`getUserMedia` requires a secure context). Use a reverse proxy (nginx, Caddy, etc.) with Let's Encrypt certificates, or AWS load balancer, etc., to terminate TLS and forward to port 5003.
 
  ### Testing:
 - Unit and functional testing functions are located in the "tests" folder.

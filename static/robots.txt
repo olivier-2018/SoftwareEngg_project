@@ -1,0 +1,27 @@
+# Allow Microsoft and Copilot Studio bots
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: BingPreview
+Allow: /
+Crawl-delay: 1
+
+User-agent: Copilot
+Allow: /
+Crawl-delay: 1
+
+User-agent: CopilotStudio
+Allow: /
+Crawl-delay: 1
+
+User-agent: Portfolio Chatbot
+Allow: /
+Crawl-delay: 1
+
+# Disallow all other bots
+User-agent: *
+Disallow: /
+
+# Sitemap reference
+Sitemap: https://portfolio.brontechsolutions.ch/sitemap.xml

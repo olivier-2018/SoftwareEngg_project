@@ -32,6 +32,9 @@ def predict_from_file():
     prediction = ""
     audio_sequence = np.zeros(1)
 
+    URL_rule = request.url_rule
+    is_mic_route = "mic" in URL_rule.rule
+
     if request.method == "POST":
         current_app.logger.info("=== FORM RECEIVED ===")
 
@@ -41,7 +44,7 @@ def predict_from_file():
 
         request_object = request.files["file"]
 
-        if is_valid_filename(request_object):
+        if is_valid_filename(request_object, allow_webm=is_mic_route):
             audio_filename = request_object.filename
             # Save selected audio file on server backend
             backend_save_request_object(request_object, upload_path=UPLOAD_FOLDER)
@@ -50,10 +53,10 @@ def predict_from_file():
             flash("Invalid filename", category="error")
             return redirect(request.url)
 
-        if not is_valid_audio_file(audio_filename, upload_path=UPLOAD_FOLDER):
+        if not is_valid_audio_file(audio_filename, upload_path=UPLOAD_FOLDER, allow_webm=is_mic_route):
 
-            flash("Invalid file format (not an audio wav file)", category="error")
-            current_app.logger.info("Invalid file format (not an audio wav file).")
+            flash("Invalid file format", category="error")
+            current_app.logger.info("Invalid audio file format.")
             return redirect(request.url)
 
         else:
@@ -86,34 +89,29 @@ def predict_from_file():
             # Supress audio file on backend server
             backend_file_delete(audio_filename, upload_path=UPLOAD_FOLDER)
 
-            # Load ML model based on installed Tensorflow version (necessary to handle conda vs pip TF version)
-            TF_ver = tensorflow.__version__
-            if TF_ver == "2.3.0":
-                current_app.logger.info("Tensorflow v2.3.0 (conda) detected, ML model audio_MNIST_v3-TF_v2.3.0.tf used.")
-                model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.3.0.tf")
-            elif TF_ver == "2.7.0":
-                current_app.logger.info("Tensorflow v2.7.0 (pip) detected, ML model audio_MNIST_v3-TF_v2.7.0.tf used.")
-                model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.7.0.tf")
-            else:
-                current_app.logger.critical("App requires either Tensorflow v2.3.0 (conda) or Tensorflow 2.7.0 (pip) installed.")
-                flash("App requires either Tensorflow v2.3.0 (conda) or Tensorflow 2.7.0 (pip) installed.", category="error")
-                return redirect(request.url)
+            # Load ML model
+            current_app.logger.info("Loading ML model audio_MNIST_v3-TF_v2.7.0.tf (TensorFlow v%s).", tensorflow.__version__)
+            model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.7.0.tf")
 
             # Make prediction based on ML model and audio sequence input
             prediction = make_prediction(audio_sequence, model, model_input_dim)
 
             # Generate waveform picture
-            img_path = os.path.join(APP_FOLDER, "static", "client", img_filename)
+            img_path = os.path.join(APP_FOLDER, "static", "client")
             img_filename = plot_audio(audio_sequence, label=audio_filename, path=img_path, sr=8000)
 
-    URL_rule = request.url_rule
     current_app.logger.debug("Endpoint detected: %s", URL_rule)
 
     if "file" in URL_rule.rule:
         return render_template("predict_from_file.html", model_prediction=prediction, user=current_user, filename=img_filename)
 
     elif "mic" in URL_rule.rule:
-        return render_template("predict_from_mic.html", model_prediction=prediction, user=current_user, filename=img_filename)
+        # For POST requests from the mic page, return JSON so JavaScript can update the page
+        if request.method == "POST":
+            from flask import jsonify
+            return jsonify({"prediction": int(prediction), "filename": img_filename})
+        else:
+            return render_template("predict_from_mic.html", model_prediction=prediction, user=current_user, filename=img_filename)
 
 
 @views.route("/display/<filename>")
@@ -147,14 +145,14 @@ def audio_process(waveform, sr, model_dim=8000, model_sr=8000):
 
     audio_sequence = np.zeros(model_dim)
 
-    duration = librosa.get_duration(waveform, sr)
+    duration = librosa.get_duration(y=waveform, sr=sr)
     audio_seq_length = waveform.shape[0]
     current_app.logger.debug("input signal: sequence_length= %s, sampling rate=%s, duration=%s", audio_seq_length, sr, duration)
 
     if not sr == model_sr:
-        waveform = librosa.resample(waveform, sr, model_sr)
+        waveform = librosa.resample(waveform, orig_sr=sr, target_sr=model_sr)
         audio_seq_length = waveform.shape[0]
-        duration = librosa.get_duration(waveform, model_sr)
+        duration = librosa.get_duration(y=waveform, sr=model_sr)
         current_app.logger.debug("resampled signal: sequence_length= %s, sampling rate=%s, duration=%s", audio_seq_length, model_sr, duration)
 
     if audio_seq_length > model_dim:
@@ -211,20 +209,29 @@ def plot_audio(audio: complex, label: str, path: str, sr=8000) -> str:
     return img_filename
 
 
-def is_valid_filename(request_object: complex) -> bool:
+def is_valid_filename(request_object: complex, allow_webm: bool = False) -> bool:
     """Check filename extension
 
+    Args:
+        request_object: Flask file request object
+        allow_webm: If True, accept both .wav and .webm extensions. If False, only accept .wav.
+
     Returns:
-        [render_template]: Render template object with prediction variable (int)
+        bool: True if filename is valid, False otherwise
     """
     current_app.logger.info("Check filename extension")
     if request_object.filename == "":
         current_app.logger.error("No filename selected.")
         return False
-    elif not pathlib.Path(request_object.filename).suffix.lower() == ".wav":
-        current_app.logger.warning("Wrong file extension. Is this really a wav audio file ?")
-    else:
-        current_app.logger.debug("Correct file extension detected.")
+
+    ext = pathlib.Path(request_object.filename).suffix.lower()
+    allowed_exts = {".wav", ".webm"} if allow_webm else {".wav"}
+
+    if ext not in allowed_exts:
+        current_app.logger.warning("Wrong file extension. Expected %s, got %s", allowed_exts, ext)
+        return False
+
+    current_app.logger.debug("Correct file extension detected: %s", ext)
     return True
 
 
@@ -249,21 +256,37 @@ def backend_save_request_object(request_object: complex, upload_path: str) -> No
     return None
 
 
-def is_valid_audio_file(audio_filename: str, upload_path: str) -> bool:
+def is_valid_audio_file(audio_filename: str, upload_path: str, allow_webm: bool = False) -> bool:
     """Check audio file format
 
     Args:
-        filename (str):  audio wav filename
-        upload_path (str, optional): Upload folder path on backend server.
+        audio_filename (str): audio filename
+        upload_path (str): Upload folder path on backend server
+        allow_webm (bool): If True, accept both WAV and WebM formats. If False, only WAV.
 
     Returns:
-        Bool: True if file format is a wav audio, False otherwise
+        bool: True if file is a valid audio format, False otherwise
     """
 
     current_app.logger.info("Checking audio file format.")
 
     path = os.path.join(upload_path, audio_filename)
     current_app.logger.debug("Selected path: %s", path)
+
+    # For WebM files, librosa.load will handle them via audioread backend
+    # For WAV files, verify with soundfile
+    if allow_webm and audio_filename.lower().endswith(".webm"):
+        try:
+            # Quick validation: try to open with librosa
+            librosa.get_duration(path=path)
+            current_app.logger.info("Detected WebM audio format.")
+            return True
+        except Exception as e:
+            current_app.logger.warning("Cannot open WebM audio file: %s", str(e))
+            backend_file_delete(audio_filename, upload_path)
+            return False
+
+    # Standard WAV validation
     try:
         s = sf.info(path)
     except RuntimeError:
@@ -272,10 +295,10 @@ def is_valid_audio_file(audio_filename: str, upload_path: str) -> bool:
         return False
 
     if s.format.lower() == "wav":
-        current_app.logger.info("Detected wav audio format.")
+        current_app.logger.info("Detected WAV audio format.")
         return True
     else:
-        current_app.logger.warning("Selected file is not a wav audio format.")
+        current_app.logger.warning("Selected file is not a WAV audio format.")
         return False
 
 
@@ -396,21 +419,48 @@ def play_sound():
 
 
 def load_ML_model(model_path: str = "/ML_model/audio_MNIST_v1.tf") -> complex:
-    """Load tensorflow Keras ML model
+    """Load tensorflow SavedModel serving signature for inference
 
     Args:
         model_path (str, optional): ML model folder path on backend server. Defaults to "/ML_model/audio_MNIST_v1.tf".
 
     Returns:
-        Keras model: tensorflow Keras ML model to be used for prediction
+        tensorflow SavedModel concrete function: ML model to be used for prediction
     """
     current_app.logger.info("===== load_ML_model =====")
     path = current_app.config["APP_FOLDER"] + model_path
     current_app.logger.debug("model path: %s", path)
 
     tensorflow.get_logger().setLevel("ERROR")
-    model = tensorflow.keras.models.load_model(path)
-    current_app.logger.debug("ML model loaded.")
+    # Load only the serving graph, avoiding the optimizer state loading issue
+    import tensorflow as tf
+    from tensorflow.python.saved_model import loader
+    from tensorflow.python.saved_model import tag_constants
+
+    # Use the low-level loader to load only the serving graph
+    sess = tf.compat.v1.Session()
+    metagraph = loader.load(sess, [tag_constants.SERVING], path)
+    # Get the serving signature
+    signature = metagraph.signature_def[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
+
+    # Create a callable that uses this session and signature
+    class SignatureModel:
+        def __init__(self, sess, sig, tag, model_path):
+            self.sess = sess
+            self.sig = sig
+            self.input_key = list(sig.inputs.keys())[0]
+            self.output_key = list(sig.outputs.keys())[0]
+            # Extract model name from path (e.g., "v2.3.0" → "functional_1", "v2.7.0" → "model")
+            self.name = "functional_1" if "v2.3.0" in model_path else "model"
+
+        def __call__(self, input_tensor):
+            input_name = self.sig.inputs[self.input_key].name
+            output_name = self.sig.outputs[self.output_key].name
+            result = self.sess.run(output_name, {input_name: input_tensor.numpy()})
+            return tf.constant(result)
+
+    model = SignatureModel(sess, signature, tag_constants.SERVING, path)
+    current_app.logger.debug("ML model loaded via serving signature.")
 
     return model
 
@@ -429,7 +479,15 @@ def make_prediction(audio_sequence, model=load_ML_model, model_input_dim: str = 
     """
     current_app.logger.info("===== make_prediction =====")
 
-    prediction_proba = model.predict(audio_sequence.reshape(1, model_input_dim, 1))
+    import tensorflow as tf
+    input_tensor = tf.constant(audio_sequence.reshape(1, model_input_dim, 1), dtype=tf.float32)
+
+    # Call the model (which is a SignatureModel wrapper around a TF1 session graph)
+    prediction_proba = model(input_tensor)
+
+    # Convert to numpy if needed
+    if hasattr(prediction_proba, 'numpy'):
+        prediction_proba = prediction_proba.numpy()
 
     current_app.logger.warning("Taking argmax of prediction probability.")
     prediction = np.argmax(prediction_proba)
