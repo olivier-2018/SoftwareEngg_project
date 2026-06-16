@@ -2,6 +2,7 @@
 
 let mediaRecorder;
 let audioChunks = [];
+let recordedAudioBlob = null;
 
 const recordButton = document.getElementById("recordButton");
 const stopButton = document.getElementById("stopButton");
@@ -41,8 +42,8 @@ function startRecording() {
       // Handle recording stop
       mediaRecorder.addEventListener("stop", function () {
         console.log("Recording stopped, processing audio blob");
-        const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-        uploadAudio(audioBlob);
+        recordedAudioBlob = new Blob(audioChunks, { type: "audio/webm" });
+        uploadAudio(recordedAudioBlob);
 
         // Stop microphone access
         stream.getAudioTracks()[0].stop();
@@ -113,7 +114,18 @@ function uploadAudio(audioBlob) {
         // Card doesn't exist, create it
         const predictionSection = document.querySelector(".column");
         const newCard = document.createElement("div");
+
+        // Create blob URL for audio playback
+        const audioURL = URL.createObjectURL(recordedAudioBlob);
+
         newCard.innerHTML = `
+          <br />
+          <h3>Play Recording</h3>
+          <audio controls autoplay style="width: 100%; max-width: 300px;">
+            <source src="${audioURL}" type="audio/webm">
+            Your browser does not support the audio element.
+          </audio>
+          <br />
           <br />
           <h3>Prediction Result</h3>
           <div class="card text-white bg-primary mb-3" style="max-width: 10rem;">
@@ -136,6 +148,13 @@ function uploadAudio(audioBlob) {
         const titleElement = predictionDiv.querySelector(".card-title");
         if (titleElement) {
           titleElement.textContent = data.prediction;
+        }
+
+        // Update audio player
+        const audioURL = URL.createObjectURL(recordedAudioBlob);
+        const audioElement = predictionDiv.parentElement.querySelector("audio");
+        if (audioElement) {
+          audioElement.src = audioURL;
         }
       }
 

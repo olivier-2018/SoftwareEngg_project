@@ -30,6 +30,7 @@ def predict_from_file():
     APP_FOLDER = current_app.config["APP_FOLDER"]
     img_filename = ""
     prediction = ""
+    audio_filename = ""
     audio_sequence = np.zeros(1)
 
     URL_rule = request.url_rule
@@ -45,6 +46,16 @@ def predict_from_file():
         request_object = request.files["file"]
 
         if is_valid_filename(request_object, allow_webm=is_mic_route):
+            # Delete all old audio files from upload folder first
+            try:
+                for filename in os.listdir(UPLOAD_FOLDER):
+                    filepath = os.path.join(UPLOAD_FOLDER, filename)
+                    if os.path.isfile(filepath) and filename.endswith(('.wav', '.webm')):
+                        os.remove(filepath)
+                        current_app.logger.debug("Deleted old audio file: %s", filename)
+            except Exception as e:
+                current_app.logger.warning("Could not delete old audio files: %s", e)
+
             audio_filename = request_object.filename
             # Save selected audio file on server backend
             backend_save_request_object(request_object, upload_path=UPLOAD_FOLDER)
@@ -86,8 +97,8 @@ def predict_from_file():
             #     filename=audio_filename, upload_path=UPLOAD_FOLDER, sampling_rate=8000, max_seq_length=model_input_dim
             # )
 
-            # Supress audio file on backend server
-            backend_file_delete(audio_filename, upload_path=UPLOAD_FOLDER)
+            # Keep audio file on backend server for playback (don't delete)
+            # backend_file_delete(audio_filename, upload_path=UPLOAD_FOLDER)
 
             # Load ML model
             current_app.logger.info("Loading ML model audio_MNIST_v3-TF_v2.7.0.tflite.")
@@ -103,7 +114,7 @@ def predict_from_file():
     current_app.logger.debug("Endpoint detected: %s", URL_rule)
 
     if "file" in URL_rule.rule:
-        return render_template("predict_from_file.html", model_prediction=prediction, user=current_user, filename=img_filename)
+        return render_template("predict_from_file.html", model_prediction=prediction, user=current_user, filename=img_filename, audio_filename=audio_filename)
 
     elif "mic" in URL_rule.rule:
         # For POST requests from the mic page, return JSON so JavaScript can update the page
@@ -112,6 +123,14 @@ def predict_from_file():
             return jsonify({"prediction": int(prediction), "filename": img_filename})
         else:
             return render_template("predict_from_mic.html", model_prediction=prediction, user=current_user, filename=img_filename)
+
+
+@views.route("/upload/<filename>")
+@login_required
+def get_upload(filename: str):
+    """Serve uploaded audio files"""
+    from flask import send_from_directory
+    return send_from_directory(current_app.config["UPLOAD_FOLDER"], filename)
 
 
 @views.route("/display/<filename>")
