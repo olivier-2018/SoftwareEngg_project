@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y libsndfile1 ffmpeg && rm -rf /var/lib/a
 
 COPY pyproject.toml uv.lock ./
 
-RUN uv sync --frozen --no-dev
+ARG FLASK_ENV=production
+RUN if [ "$FLASK_ENV" = "development" ]; then uv sync --frozen; else uv sync --frozen --no-dev; fi
 
 # Runtime stage
 FROM python:3.12-slim
