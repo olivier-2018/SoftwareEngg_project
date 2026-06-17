@@ -1,5 +1,5 @@
 # Build stage
-FROM python:3.12-slim as builder
+FROM python:3.12-slim AS builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y libsndfile1 ffmpeg && rm -rf /var/lib/a
 COPY pyproject.toml uv.lock ./
 
 ARG FLASK_ENV=production
-RUN if [ "$FLASK_ENV" = "development" ]; then uv sync --frozen; else uv sync --frozen --no-dev; fi
+RUN bash -c 'if [ "$FLASK_ENV" = "development" ]; then uv sync --frozen; else uv sync --frozen --no-dev; fi'
 
 # Runtime stage
 FROM python:3.12-slim
