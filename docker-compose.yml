@@ -8,8 +8,8 @@ services:
     restart: unless-stopped
     env_file: .env
     # Expose port to host only in local Dev
-    ports:
-      - "5003:5003"
+    #ports:
+    #  - "5003:5003"
     volumes:
       - ./sqlite_db:/app/sqlite_db
     networks: [ "contado_net" ]
