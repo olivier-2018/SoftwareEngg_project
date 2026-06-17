@@ -25,5 +25,7 @@ dev = [
     "flake8>=7.3.0",
     "pre-commit>=4.6.0",
     "pytest>=9.1.0",
-    "tensorflow-cpu>=2.21.0",
+]
+convert = [
+    "tensorflow-cpu>=2.21.0"
 ]

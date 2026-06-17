@@ -3,10 +3,8 @@
 __pycache__
 .git
 app.log
-database.db
 static/client/wav/*
-tests/
 .pytest_cache
 .github
-upload_space/
 sqlite_db/
+database.db

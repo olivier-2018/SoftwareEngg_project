@@ -40,11 +40,11 @@ def test_home():
     with flask_app.test_client() as test_client:
         response = test_client.get("/home")
         assert response.status_code == 200
-        assert b"Welcome to the" in response.data
+        assert b"Software Engineering Project" in response.data
 
         response = test_client.get("/")
         assert response.status_code == 200
-        assert b"Welcome to the" in response.data
+        assert b"Software Engineering Project" in response.data
 
 
 def test_about():
