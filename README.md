@@ -124,7 +124,17 @@ docker compose up -d
 
 **Important:** On a VPS, the app requires **HTTPS** for the microphone recording feature (`getUserMedia` requires a secure context). Use a reverse proxy (nginx, Caddy, etc.) with Let's Encrypt certificates, or AWS load balancer, etc., to terminate TLS and forward to port 5003.
 
+### Deployment on Heroku
 
+To enable automated deployment to Heroku via GitHub Actions CI/CD, set up the following environment variables in your GitHub repository settings (Settings → Secrets and variables → Actions):
+
+1. **`HEROKU_API_TOKEN`**: Your Heroku authentication token. Generate this by running `heroku auth:token` after logging in with `heroku login` locally, or create one in your [Heroku Account Settings](https://dashboard.heroku.com/account/applications/authorizations).
+
+2. **`SOFTWARE_ENGG_HEROKU_APP_NAME`**: The name of your Heroku app (e.g., `my-audio-mnist-app`). This is the subdomain your app will be hosted at.
+
+3. **`HEROKU_EMAIL`**: The email address associated with your Heroku account.
+
+Once these secrets are configured, the GitHub Actions workflow will automatically build and test the application on every push to the `main` branch. If all tests pass, the app is automatically deployed to Heroku. The Heroku platform automatically handles HTTPS provisioning and dyno management, making it ideal for quick cloud deployments without infrastructure overhead. Ensure your `Procfile` and `runtime.txt` are present in the root directory to specify how Heroku should run your app.
 
  ### Illustrations:
  #### Welcome screen
