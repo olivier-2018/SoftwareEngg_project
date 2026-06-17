@@ -36,26 +36,31 @@ def create_app():
     app.logger.info("APP FOLDER: %s", app.config["APP_FOLDER"])
     app.logger.info("UPLOAD FOLDER: %s", app.config["UPLOAD_FOLDER"])
 
-    if app.config["ENV"] == "" or app.config["ENV"] == "development":
+    flask_env = os.getenv("FLASK_ENV", "development")
+    if flask_env == "" or flask_env == "development":
         app.config.from_object("configuration.DevelopmentConfig")
         logger.setLevel(logging.DEBUG)
-    elif app.config["ENV"] == "production":
+    elif flask_env == "production":
         app.config.from_object("configuration.ProductionConfig")
         logger.setLevel(logging.WARNING)
-    elif app.config["ENV"] == "testing":
+    elif flask_env == "testing":
         app.config.from_object("configuration.TestingConfig")
         logger.setLevel(logging.INFO)
 
-    app.logger.info("%s environment detected.", app.config["ENV"])
+    app.logger.info("%s environment detected.", flask_env)
 
     # Initializing database
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_NAME}"
+    db_dir = os.path.join(app.config["APP_FOLDER"], "sqlite_db")
+    os.makedirs(db_dir, exist_ok=True)
+    db_path = os.path.join(db_dir, DB_NAME)
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
     db.init_app(app)
     app.logger.info("Database initialized.")
 
     # Importing routes
     from .views import views
     from .auth import auth
+    from .misc import misc
     from .models import User
     from .misc import misc
 
@@ -82,7 +87,8 @@ def create_app():
 
 def create_database(app):
     if not os.path.exists(DB_NAME):
-        db.create_all(app=app)
+        with app.app_context():
+            db.create_all()
         app.logger.info("Database Created!")
     else:
         app.logger.info("Database already existing!")

@@ -1,0 +1,21 @@
+services:
+  app:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    image: softwareengg-app:latest
+    container_name: softwareengg-app
+    restart: unless-stopped
+    env_file: .env
+    # Expose port to host only in local Dev
+    #ports:
+    #  - "5003:5003"
+    volumes:
+      - ./sqlite_db:/app/sqlite_db
+    networks: [ "contado_net" ]
+
+networks:
+   contado_net:
+      name: contado_net
+      driver: bridge
+      external: true

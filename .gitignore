@@ -6,6 +6,7 @@ __pycache__
 .vscode/
 
 # Environments
+.env
 .venv/
 venv/
 
@@ -23,3 +24,6 @@ venv/
 
 # images
 waveform.png
+
+# Tensorflow models
+*.tf/

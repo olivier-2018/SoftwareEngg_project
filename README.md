@@ -23,47 +23,118 @@
 - Use augmented / additional data to improve generalization on model prediction (male/female voices, accents, etc).
 
 ### Getting started:
-- Environment setup :
+
+#### Prerequisites
+
+This project uses `uv` for fast, reliable dependency management. 
+
+**Install `uv`** (if not already installed):
 ```sh
-# Use virtualenv package to create a virtual python environment:
-sudo apt-get install python-virtualenv
+# On Linux/macOS using curl:
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# On Windows using PowerShell:
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+#### Clone and set up the project:
+```sh
 # Clone the repository:
-git clone git@github.com:olivier-2018/SoftwareEngg_project.git  --branch development
-# Create a virtual environment within the repo:
-virtualenv venv
-# Activate the virtual environment:
-source venv/bin/activate
-# Install dependencies:
-pip install -r requirements.txt
+git clone git@github.com:olivier-2018/SoftwareEngg_project.git 
+cd SoftwareEngg_project
+
+# Sync dependencies using uv (creates/updates .venv automatically):
+uv sync
+
+# Alternatively, if you prefer pip and manual venv:
+python -m venv venv
+# Activate: source venv/bin/activate (Linux/macOS) or venv\Scripts\activate (Windows)
+pip install -e .
+
+# Copy environment config template and customize:
+cp .env.example .env
+# Edit .env to add a SECRET_KEY if desired (a default is provided for local dev)
 ```
-- Set Flask environment variables:
+
+#### Running the Development Server
 ```sh
-Linux:
-export FLASK_APP=run.py
-export FLASK_ENV=development (or production, or testing as required)
-export SECRETE_KEY="<whatever you want>" (optional, Flask will assign a secret hash if unset)
-
-Windows powershell:
-$env:FLASK_APP = 'run.py'
-$env:FLASK_ENV = 'development' (or 'production', or 'testing' as required)
-$env: SECRETE_KEY = <whatever you want> (optional, Flask will assign a secret hash if unset)
+# The .env file automatically loads Flask configuration
+flask run 
 ```
-- Launch the API locally:
-```sh
-flask run
-```
-*Note: on WSL you may need to export the display with an Xserver to run flask*
-- The API will automatically deploy to Heroku upon succesful build on the main branch.
 
-*Note: The Heroku app address is kept private not to reach the free account usage limit during the app development.*
+The app will start on **http://localhost:5003** with **live reload enabled** (`FLASK_DEBUG=1` in .env) — changes to templates, static files, and Python code automatically reload in the browser.
 
- ### Testing:
+### Developments
+
+#### Testing:
 - Unit and functional testing functions are located in the "tests" folder.
 - Testing is automatic as part of the CI/CD pipeline but can also be launched manually using the command:
 ```sh
 pytest -vrxXs
 ```
 
+#### Pre-commit
+
+Pre‑commit runs a set of hooks every time you run git commit.   
+These hooks can:  
+- auto‑format code  
+- lint Python and JS
+- check for syntax errors
+- block commits with secrets
+- validate JSON/YAML
+- enforce consistent whitespace
+
+Pre-commit can be run manually before a *git commit*,  
+```sh
+pre-commit run
+# this will automateically read the *.pre-commit-config.yaml* cfg file
+```
+
+or automatically with each *git commit* using hooks.  
+Set up hooks with  
+```sh
+pre-commit install
+pre-commit run --all-files
+```
+
+
+### Deployment on VPS
+
+To deploy on a self-hosted VPS using Docker and Docker Compose:
+
+```sh
+# On your VPS, clone the repo and set up environment:
+git clone <repo-url>
+cd SoftwareEngg_project
+
+# Create production .env (do NOT commit this to git):
+cp .env.example .env
+# Edit .env with production values:
+#   FLASK_ENV=production
+#   FLASK_DEBUG=0
+#   SECRET_KEY=<generate-a-secure-key>
+
+# Build and run the containerized app:
+docker compose build --no-cache
+docker compose up -d 
+
+# The app listens on port 5003. Configure a reverse proxy (e.g., nginx)
+# to forward traffic to the container and handle HTTPS/TLS termination.
+```
+
+**Important:** On a VPS, the app requires **HTTPS** for the microphone recording feature (`getUserMedia` requires a secure context). Use a reverse proxy (nginx, Caddy, etc.) with Let's Encrypt certificates, or AWS load balancer, etc., to terminate TLS and forward to port 5003.
+
+### Deployment on Heroku
+
+To enable automated deployment to Heroku via GitHub Actions CI/CD, set up the following environment variables in your GitHub repository settings (Settings → Secrets and variables → Actions):
+
+1. **`HEROKU_API_TOKEN`**: Your Heroku authentication token. Generate this by running `heroku auth:token` after logging in with `heroku login` locally, or create one in your [Heroku Account Settings](https://dashboard.heroku.com/account/applications/authorizations).
+
+2. **`SOFTWARE_ENGG_HEROKU_APP_NAME`**: The name of your Heroku app (e.g., `my-audio-mnist-app`). This is the subdomain your app will be hosted at.
+
+3. **`HEROKU_EMAIL`**: The email address associated with your Heroku account.
+
+Once these secrets are configured, the GitHub Actions workflow will automatically build and test the application on every push to the `main` branch. If all tests pass, the app is automatically deployed to Heroku. The Heroku platform automatically handles HTTPS provisioning and dyno management, making it ideal for quick cloud deployments without infrastructure overhead. Ensure your `Procfile` and `runtime.txt` are present in the root directory to specify how Heroku should run your app.
  ### Demo
 ![Demo](static/video/SoftwareEngg_project_demo_HR.gif)
 

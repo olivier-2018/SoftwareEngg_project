@@ -76,7 +76,7 @@ def sign_up():
             current_app.logger.info("Password must be at least 7 characters.")
         else:
             new_user = User(
-                user_name=username, email=email, first_name=firstname, last_name=lastname, password=generate_password_hash(password1, method="sha256")
+                user_name=username, email=email, first_name=firstname, last_name=lastname, password=generate_password_hash(password1)
             )
             current_app.logger.info("New user created:%s", username)
 

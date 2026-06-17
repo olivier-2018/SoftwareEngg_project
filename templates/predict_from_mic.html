@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Single_digit_prediction_from_microphone{% endblock %}
+
+{% block content %}
+<style>
+  .column {
+    float: left;
+    width: 50%;
+  }
+
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+  #formats {
+    margin-top: 0.5rem;
+    font-size: 80%;
+  }
+
+  #recordingControls {
+    margin: 1rem 0;
+  }
+
+  button {
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    font-size: 1rem;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+</style>
+
+<br />
+<h2 align="center">Prediction from recorded audio</h1>
+<br />
+
+<div class="row">
+  <div class="column">
+    <h3>Record Audio</h3>
+
+    <div id="recordingControls">
+      <button id="recordButton">Record</button>
+      <button id="pauseButton" disabled>Pause</button>
+      <button id="stopButton" disabled>Stop</button>
+    </div>
+
+    <div id="formats">Format: start recording to see sample rate</div>
+
+    {% if model_prediction != "" and model_prediction is not none %}
+    <br />
+    <h3>Prediction Result</h3>
+
+    <div class="card text-white bg-primary mb-3" style="max-width: 10rem;">
+      <div class="card-header">Predicted Digit</div>
+      <div class="card-body">
+        <h4 class="card-title">{{ model_prediction }}</h4>
+      </div>
+    </div>
+    <br />
+    <div>
+      <p>
+        <strong>Disclaimer:</strong> The ML model was trained to 94% test accuracy but does not
+        generalize on all real-life test cases due to the reduced dataset size.
+      </p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="column">
+    <h3>Waveform</h3>
+
+    {% if filename %}
+    <div>
+      <img src="{{ url_for('views.display_image', filename=filename) }}" />
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script src="static/js/app.js"></script>
+{% endblock %}

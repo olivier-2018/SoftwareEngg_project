@@ -20,7 +20,7 @@ def test_new_user(username, email, firstname, lastname, password) -> bool:
     """
     with flask_app.app_context():
         user = User(
-            user_name=username, email=email, first_name=firstname, last_name=lastname, password=generate_password_hash(password, method="sha256")
+            user_name=username, email=email, first_name=firstname, last_name=lastname, password=generate_password_hash(password)
         )
 
         assert user.user_name == username

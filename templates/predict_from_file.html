@@ -25,32 +25,41 @@
 
 <div  class="row">
     <div  class="column">
-        <form method="post" enctype="multipart/form-data">
+        <form>
 
-            <h3>Step 1 - Select a wav file</h3>
+            <h3>Select a wav file</h3>
 
             <div class="form-group col-lg-5" >
                 <label for="formFile" class="form-label">Select a wav audio file using the browse button below</label>
-                <input class="form-control" type="file" name="file" id="formFile">
-            </div>
-            <br>
-            <h3>Step 2 - Upload selected file</h3>
-            <div class="form-group col-lg-5" >
-                <input type="submit" class="btn btn-primary btn-sm" id="submitButton" value="upload" />
+                <input class="form-control" type="file" name="file" id="formFile" accept=".wav,.webm">
             </div>
 
 
 
             {% if model_prediction != "" %}
             <br>
-            <h3>Step 3 - Running the ML model </h3>
+            <h3>Play Recording</h3>
+            {% if audio_filename %}
+            <audio controls autoplay style="width: 100%; max-width: 300px;">
+                <source src="{{ url_for('views.get_upload', filename=audio_filename) }}?t={{ range(1, 1000000) | random }}" type="audio/wav">
+                Your browser does not support the audio element.
+            </audio>
+            {% endif %}
+
+            <br>
+            <br>
+            <h3>Prediction Result</h3>
 
             <div class="card text-white bg-primary mb-3" style="max-width: 10rem;">
                 <div class="card-header">Prediction</div>
                 <div class="card-body">
-                <h4 class="card-title">{{ model_prediction }}</h4>
-                <p class="card-text"> </p>
+                    <h4 class="card-title">{{ model_prediction }}</h4>
+                    <p class="card-text"> </p>
                 </div>
+            </div>
+            <br>
+            <div>
+                <p><strong>Disclaimer</strong> the ML model was trained to a 94% test accuracy but does not generalize on all real life test cases due to the reduced dataset size. </p>
             </div>
             {% endif %}
         </form>
@@ -70,5 +79,63 @@
     </div >
 </div >
 
+<script>
+  function initializeFileUpload() {
+    const fileInput = document.getElementById('formFile');
+    if (fileInput) {
+      // Remove any existing listeners first
+      fileInput.replaceWith(fileInput.cloneNode(true));
+      const newFileInput = document.getElementById('formFile');
+
+      newFileInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+          console.log('File selected, uploading:', file.name);
+          uploadFile(file);
+        }
+      });
+    }
+  }
+
+  function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch(window.location.pathname, {
+      method: 'POST',
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Upload failed: ' + response.statusText);
+        }
+        return response.text();
+      })
+      .then((html) => {
+        // Replace entire page content
+        document.documentElement.innerHTML = html;
+
+        // Re-initialize file upload listener and autoplay
+        setTimeout(function() {
+          initializeFileUpload();
+
+          const audioElement = document.querySelector('audio');
+          if (audioElement) {
+            console.log('Playing audio');
+            audioElement.play().catch(function(error) {
+              console.log('Autoplay prevented:', error);
+            });
+          }
+        }, 300);
+      })
+      .catch((error) => {
+        console.error('Upload error:', error);
+        alert('Error uploading file: ' + error.message);
+      });
+  }
+
+  // Initialize on page load
+  initializeFileUpload();
+</script>
 
 {% endblock %}

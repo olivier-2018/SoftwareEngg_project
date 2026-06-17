@@ -6,7 +6,7 @@ import pathlib
 import librosa
 import numpy as np
 from werkzeug.utils import secure_filename
-import tensorflow
+from ai_edge_litert.interpreter import Interpreter
 import soundfile as sf
 import matplotlib
 import matplotlib.pyplot as plt
@@ -17,6 +17,7 @@ views = Blueprint("views", __name__)
 
 
 @views.route("/predict_from_file", methods=["GET", "POST"])
+@views.route("/predict_from_mic", methods=["GET", "POST"])
 @login_required
 def predict_from_file():
     """Makes a digit prediction by uploading a wav file using the audio MNIST ML model
@@ -29,7 +30,11 @@ def predict_from_file():
     APP_FOLDER = current_app.config["APP_FOLDER"]
     img_filename = ""
     prediction = ""
+    audio_filename = ""
     audio_sequence = np.zeros(1)
+
+    URL_rule = request.url_rule
+    is_mic_route = "mic" in URL_rule.rule
 
     if request.method == "POST":
         current_app.logger.info("=== FORM RECEIVED ===")
@@ -40,7 +45,17 @@ def predict_from_file():
 
         request_object = request.files["file"]
 
-        if is_valid_filename(request_object):
+        if is_valid_filename(request_object, allow_webm=is_mic_route):
+            # Delete all old audio files from upload folder first
+            try:
+                for filename in os.listdir(UPLOAD_FOLDER):
+                    filepath = os.path.join(UPLOAD_FOLDER, filename)
+                    if os.path.isfile(filepath) and filename.endswith(('.wav', '.webm')):
+                        os.remove(filepath)
+                        current_app.logger.debug("Deleted old audio file: %s", filename)
+            except Exception as e:
+                current_app.logger.warning("Could not delete old audio files: %s", e)
+
             audio_filename = request_object.filename
             # Save selected audio file on server backend
             backend_save_request_object(request_object, upload_path=UPLOAD_FOLDER)
@@ -49,58 +64,73 @@ def predict_from_file():
             flash("Invalid filename", category="error")
             return redirect(request.url)
 
-        if not is_valid_audio_file(audio_filename, upload_path=UPLOAD_FOLDER):
+        if not is_valid_audio_file(audio_filename, upload_path=UPLOAD_FOLDER, allow_webm=is_mic_route):
 
-            flash("Invalid file format (not an audio wav file)", category="error")
+            flash("Invalid file format", category="error")
+            current_app.logger.info("Invalid audio file format.")
             return redirect(request.url)
 
         else:
 
-            # Process audio file if required (future app developments)
-            # waveform, sr_read = backend_rawfile_load (audio_filename, upload_path=UPLOAD_FOLDER)
+            # Read raw audio file
+            waveform, sr_read = backend_rawfile_load(audio_filename, upload_path=UPLOAD_FOLDER)
 
             # Query basic audio characteristics
-            sampling_rate = get_sampling_rate(audio_filename, upload_path=UPLOAD_FOLDER)
-            duration = get_duration(audio_filename, upload_path=UPLOAD_FOLDER)
+            # sampling_rate = get_sampling_rate(audio_filename, upload_path=UPLOAD_FOLDER)
+            # duration = get_duration(audio_filename, upload_path=UPLOAD_FOLDER)
 
-            # Set ML model input layer dimensional constraint
+            # Set ML model constraints (hard coded)
             model_input_dim = 8000
+            model_sampling_rate = 8000
 
             # Adjust sampling rate if required (future app developments)
             # new_sampling_rate = int(model_input_dim / duration)
 
-            # Load audio sequence
-            audio_sequence = load_audio_sequence(
-                filename=audio_filename, upload_path=UPLOAD_FOLDER, sampling_rate=sampling_rate, max_seq_length=model_input_dim
-            )
-
-            # Supress audio file on backend server
-            backend_file_delete(audio_filename, upload_path=UPLOAD_FOLDER)
+            # Process audio file if required (future app developments)
+            audio_sequence = audio_process(waveform, sr=sr_read, model_dim=model_input_dim, model_sr=model_sampling_rate)
 
             # Save processed audio sequence (DEBUG for future app developments)
             # sf.write('test.wav', audio_sequence, new_sampling_rate, 'PCM_16')
 
-            # Load ML model based on installed Tensorflow version (necessary to handle conda vs pip TF version)
-            TF_ver = tensorflow.__version__
-            if TF_ver == "2.3.0":
-                current_app.logger.info("Tensorflow v2.3.0 (conda) detected, ML model audio_MNIST_v3-TF_v2.3.0.tf used.")
-                model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.3.0.tf")
-            elif TF_ver == "2.7.0":
-                current_app.logger.info("Tensorflow v2.7.0 (pip) detected, ML model audio_MNIST_v3-TF_v2.7.0.tf used.")
-                model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.7.0.tf")
-            else:
-                current_app.logger.critical("App requires either Tensorflow v2.3.0 (conda) or Tensorflow 2.7.0 (pip) installed.")
-                flash("App requires either Tensorflow v2.3.0 (conda) or Tensorflow 2.7.0 (pip) installed.", category="error")
-                return redirect(request.url)
+            # Load audio sequence
+            # audio_sequence = load_audio_sequence(
+            #     filename=audio_filename, upload_path=UPLOAD_FOLDER, sampling_rate=8000, max_seq_length=model_input_dim
+            # )
+
+            # Keep audio file on backend server for playback (don't delete)
+            # backend_file_delete(audio_filename, upload_path=UPLOAD_FOLDER)
+
+            # Load ML model
+            current_app.logger.info("Loading ML model audio_MNIST_v3-TF_v2.7.0.tflite.")
+            model = load_ML_model(model_path="/ML_model/audio_MNIST_v3-TF_v2.7.0.tflite")
 
             # Make prediction based on ML model and audio sequence input
-            prediction = make_prediction(model, audio_sequence, model_input_dim)
+            prediction = make_prediction(audio_sequence, model, model_input_dim)
 
             # Generate waveform picture
-            img_path = os.path.join(APP_FOLDER, "static", "client", img_filename)
+            img_path = os.path.join(APP_FOLDER, "static", "client")
             img_filename = plot_audio(audio_sequence, label=audio_filename, path=img_path, sr=8000)
 
-    return render_template("predict_from_file.html", model_prediction=prediction, user=current_user, filename=img_filename)
+    current_app.logger.debug("Endpoint detected: %s", URL_rule)
+
+    if "file" in URL_rule.rule:
+        return render_template("predict_from_file.html", model_prediction=prediction, user=current_user, filename=img_filename, audio_filename=audio_filename)
+
+    elif "mic" in URL_rule.rule:
+        # For POST requests from the mic page, return JSON so JavaScript can update the page
+        if request.method == "POST":
+            from flask import jsonify
+            return jsonify({"prediction": int(prediction), "filename": img_filename})
+        else:
+            return render_template("predict_from_mic.html", model_prediction=prediction, user=current_user, filename=img_filename)
+
+
+@views.route("/upload/<filename>")
+@login_required
+def get_upload(filename: str):
+    """Serve uploaded audio files"""
+    from flask import send_from_directory
+    return send_from_directory(current_app.config["UPLOAD_FOLDER"], filename)
 
 
 @views.route("/display/<filename>")
@@ -116,6 +146,56 @@ def display_image(filename: str):
     """
     current_app.logger.debug("Image filename: %s", filename)
     return redirect(url_for("static", filename=os.path.join("client", "img", filename)), code=301)
+
+
+def audio_process(waveform, sr, model_dim=8000, model_sr=8000):
+    """Process audio signal to ensure it matches ML model constraints and requirements (sampling frequency and input layer dimension)
+
+    Args:
+        waveform (numpy array): raw audio sequence
+        sr (int): raw audio sampling rate (read from file)
+        model_dim (int): ML model input layer dimension. Default to 8000.
+        model_sr (int): ML model sampling frequency. Default to 8000.
+
+    Returns:
+        numpy array: process audio sequence, ready for ML model prediction.
+    """
+    current_app.logger.info("===== audio_processing =====")
+
+    audio_sequence = np.zeros(model_dim)
+
+    duration = librosa.get_duration(y=waveform, sr=sr)
+    audio_seq_length = waveform.shape[0]
+    current_app.logger.debug("input signal: sequence_length= %s, sampling rate=%s, duration=%s", audio_seq_length, sr, duration)
+
+    if not sr == model_sr:
+        waveform = librosa.resample(waveform, orig_sr=sr, target_sr=model_sr)
+        audio_seq_length = waveform.shape[0]
+        duration = librosa.get_duration(y=waveform, sr=model_sr)
+        current_app.logger.debug("resampled signal: sequence_length= %s, sampling rate=%s, duration=%s", audio_seq_length, model_sr, duration)
+
+    if audio_seq_length > model_dim:
+        trimmed_waveform, indexes = librosa.effects.trim(waveform, top_db=35, frame_length=256, hop_length=64)
+        trimmed_signal_length = indexes[1] - indexes[0]
+
+        current_app.logger.debug("audio sequence longer than model input dimension... Trimming audio signal to dim: %s", trimmed_waveform.shape)
+
+        if trimmed_signal_length < model_dim:
+            int(trimmed_signal_length / 2)
+            # audio_sequence[start_idx: start_idx+trimmed_signal_length] = trimmed_waveform
+            audio_sequence[:trimmed_signal_length] = trimmed_waveform
+            current_app.logger.debug("Trimmed signal shorter than model input dimension... centering signal.")
+        else:
+            current_app.logger.debug("Trimmed signal still longer than model input dimension... signal will be truncated.")
+            audio_sequence = trimmed_waveform[:model_dim]
+    else:
+        current_app.logger.debug("Audio signal shorter than model input dimension... centering signal.")
+        int(audio_seq_length / 2)
+        # audio_sequence[start_idx: start_idx+audio_seq_length]  = waveform
+        audio_sequence[:audio_seq_length] = waveform
+    current_app.logger.debug("Audio_sequence adjusted to model input layer shape %s", audio_sequence.shape)
+
+    return audio_sequence
 
 
 def plot_audio(audio: complex, label: str, path: str, sr=8000) -> str:
@@ -148,20 +228,29 @@ def plot_audio(audio: complex, label: str, path: str, sr=8000) -> str:
     return img_filename
 
 
-def is_valid_filename(request_object: complex) -> bool:
+def is_valid_filename(request_object: complex, allow_webm: bool = False) -> bool:
     """Check filename extension
 
+    Args:
+        request_object: Flask file request object
+        allow_webm: If True, accept both .wav and .webm extensions. If False, only accept .wav.
+
     Returns:
-        [render_template]: Render template object with prediction variable (int)
+        bool: True if filename is valid, False otherwise
     """
     current_app.logger.info("Check filename extension")
     if request_object.filename == "":
         current_app.logger.error("No filename selected.")
         return False
-    elif not pathlib.Path(request_object.filename).suffix.lower() == ".wav":
-        current_app.logger.warning("Wrong file extension. Is this really a wav audio file ?")
-    else:
-        current_app.logger.debug("Correct file extension detected.")
+
+    ext = pathlib.Path(request_object.filename).suffix.lower()
+    allowed_exts = {".wav", ".webm"} if allow_webm else {".wav"}
+
+    if ext not in allowed_exts:
+        current_app.logger.warning("Wrong file extension. Expected %s, got %s", allowed_exts, ext)
+        return False
+
+    current_app.logger.debug("Correct file extension detected: %s", ext)
     return True
 
 
@@ -186,21 +275,37 @@ def backend_save_request_object(request_object: complex, upload_path: str) -> No
     return None
 
 
-def is_valid_audio_file(audio_filename: str, upload_path: str) -> bool:
+def is_valid_audio_file(audio_filename: str, upload_path: str, allow_webm: bool = False) -> bool:
     """Check audio file format
 
     Args:
-        filename (str):  audio wav filename
-        upload_path (str, optional): Upload folder path on backend server.
+        audio_filename (str): audio filename
+        upload_path (str): Upload folder path on backend server
+        allow_webm (bool): If True, accept both WAV and WebM formats. If False, only WAV.
 
     Returns:
-        Bool: True if file format is a wav audio, False otherwise
+        bool: True if file is a valid audio format, False otherwise
     """
 
     current_app.logger.info("Checking audio file format.")
 
     path = os.path.join(upload_path, audio_filename)
     current_app.logger.debug("Selected path: %s", path)
+
+    # For WebM files, librosa.load will handle them via audioread backend
+    # For WAV files, verify with soundfile
+    if allow_webm and audio_filename.lower().endswith(".webm"):
+        try:
+            # Quick validation: try to open with librosa
+            librosa.get_duration(path=path)
+            current_app.logger.info("Detected WebM audio format.")
+            return True
+        except Exception as e:
+            current_app.logger.warning("Cannot open WebM audio file: %s", str(e))
+            backend_file_delete(audio_filename, upload_path)
+            return False
+
+    # Standard WAV validation
     try:
         s = sf.info(path)
     except RuntimeError:
@@ -209,10 +314,10 @@ def is_valid_audio_file(audio_filename: str, upload_path: str) -> bool:
         return False
 
     if s.format.lower() == "wav":
-        current_app.logger.info("Detected wav audio format.")
+        current_app.logger.info("Detected WAV audio format.")
         return True
     else:
-        current_app.logger.warning("Selected file is not a wav audio format.")
+        current_app.logger.warning("Selected file is not a WAV audio format.")
         return False
 
 
@@ -229,8 +334,8 @@ def backend_rawfile_load(filename: str, upload_path: str) -> complex:
     current_app.logger.info("===== backend_rawfile_load =====")
     path = os.path.join(upload_path, filename)
     waveform, sr_read = librosa.core.load(path, sr=None)
-    current_app.logger.debug("Loading waveform of type: %s , shape: %s and sampling rate: %s", type(waveform), waveform.shape, sr_read)
-    return waveform
+    current_app.logger.debug("Loading waveform %s of type: %s , shape: %s and sampling rate: %s", filename, type(waveform), waveform.shape, sr_read)
+    return waveform, sr_read
 
 
 def backend_file_load(filename: str, upload_path: str, sampling_rate: int = None) -> complex:
@@ -332,32 +437,50 @@ def play_sound():
     """Play audio wave sound (future development)"""
 
 
-def load_ML_model(model_path: str = "/ML_model/audio_MNIST_v1.tf") -> complex:
-    """Load tensorflow Keras ML model
+def load_ML_model(model_path: str = "/ML_model/audio_MNIST_v3-TF_v2.7.0.tflite") -> complex:
+    """Load TFLite model for inference
 
     Args:
-        model_path (str, optional): ML model folder path on backend server. Defaults to "/ML_model/audio_MNIST_v1.tf".
+        model_path (str, optional): ML model file path on backend server. Defaults to "/ML_model/audio_MNIST_v3-TF_v2.7.0.tflite".
 
     Returns:
-        Keras model: tensorflow Keras ML model to be used for prediction
+        SignatureModel: TFLite interpreter wrapper for prediction
     """
     current_app.logger.info("===== load_ML_model =====")
     path = current_app.config["APP_FOLDER"] + model_path
     current_app.logger.debug("model path: %s", path)
 
-    tensorflow.get_logger().setLevel("ERROR")
-    model = tensorflow.keras.models.load_model(path)
-    current_app.logger.debug("ML model loaded.")
+    interpreter = Interpreter(model_path=path)
+    interpreter.allocate_tensors()
+
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+
+    class SignatureModel:
+        def __init__(self, interpreter, input_details, output_details, model_path):
+            self.interpreter = interpreter
+            self.input_index = input_details[0]["index"]
+            self.output_index = output_details[0]["index"]
+            # Extract model name from path (e.g., "v2.3.0" → "functional_1", "v2.7.0" → "model")
+            self.name = "functional_1" if "v2.3.0" in model_path else "model"
+
+        def __call__(self, input_tensor):
+            self.interpreter.set_tensor(self.input_index, input_tensor)
+            self.interpreter.invoke()
+            return self.interpreter.get_tensor(self.output_index)
+
+    model = SignatureModel(interpreter, input_details, output_details, path)
+    current_app.logger.debug("ML model loaded via TFLite interpreter.")
 
     return model
 
 
-def make_prediction(model, audio_sequence, model_input_dim: str = 8000) -> int:
+def make_prediction(audio_sequence, model=load_ML_model, model_input_dim: str = 8000) -> int:
     """Generates a probability distribution corresponding to 0-9 digits from the provided audio sequence using the ML model.
         Returns the argmax of the probability distribution.
 
     Args:
-        model (tensorflow model): Trained audio MNIST model (test accuracy~93%)
+        model (TFLite model): Trained audio MNIST model (test accuracy~93%)
         audio_sequence (numpy array, dtype=float64): Audio sequence used ML model input
         model_input_dim (int, optional): ML model input layer dimension . Defaults to 8000.
 
@@ -366,7 +489,10 @@ def make_prediction(model, audio_sequence, model_input_dim: str = 8000) -> int:
     """
     current_app.logger.info("===== make_prediction =====")
 
-    prediction_proba = model.predict(audio_sequence.reshape(1, model_input_dim, 1))
+    input_tensor = audio_sequence.reshape(1, model_input_dim, 1).astype(np.float32)
+
+    # Call the model (which is a SignatureModel wrapper around a TFLite interpreter)
+    prediction_proba = model(input_tensor)
 
     current_app.logger.warning("Taking argmax of prediction probability.")
     prediction = np.argmax(prediction_proba)
