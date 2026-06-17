@@ -3,11 +3,15 @@
 
 name: Python application
 
-on:
-  push:
-    branches: [ main, development]
-  pull_request:
-    branches: [ main, development]
+#
+# WARNING: Thise workflow is OBSOLETE
+# WARNING: Heroku does not offer free app hosting service ince 2022.
+#
+# on:
+#   push:
+#     branches: [ main, development]
+#   pull_request:
+#     branches: [ main, development]
 
 jobs:
   build:

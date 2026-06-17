@@ -3,9 +3,9 @@ services:
     build:
         context: .
         dockerfile: Dockerfile
-    image: softwareengg-app:latest
+    image: ghcr.io/olivier-2018/softwareengg-app:latest
     container_name: softwareengg-app
-    restart: unless-stopped
+    restart: always
     env_file: .env
     # Expose port to host only in local Dev
     #ports:
@@ -13,6 +13,16 @@ services:
     volumes:
       - ./sqlite_db:/app/sqlite_db
     networks: [ "contado_net" ]
+
+  # Uncomment for Continuous Deployment from GitHub Container Registry
+  # See .github workflow
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    networks: [ "contado_net" ]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300
 
 networks:
    contado_net:
