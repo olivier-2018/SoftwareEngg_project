@@ -62,6 +62,7 @@ def create_app():
     from .auth import auth
     from .misc import misc
     from .models import User
+    from .misc import misc
 
     app.register_blueprint(views, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/")

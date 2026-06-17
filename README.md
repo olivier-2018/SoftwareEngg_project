@@ -135,6 +135,8 @@ To enable automated deployment to Heroku via GitHub Actions CI/CD, set up the fo
 3. **`HEROKU_EMAIL`**: The email address associated with your Heroku account.
 
 Once these secrets are configured, the GitHub Actions workflow will automatically build and test the application on every push to the `main` branch. If all tests pass, the app is automatically deployed to Heroku. The Heroku platform automatically handles HTTPS provisioning and dyno management, making it ideal for quick cloud deployments without infrastructure overhead. Ensure your `Procfile` and `runtime.txt` are present in the root directory to specify how Heroku should run your app.
+ ### Demo
+![Demo](static/video/SoftwareEngg_project_demo_HR.gif)
 
  ### Illustrations:
  #### Welcome screen

@@ -203,7 +203,7 @@ def plot_audio(audio: complex, label: str, path: str, sr=8000) -> str:
 
     Args:
         audio (numpy array): audio sequence (mono-channel)
-        label (str): [description]
+        label (str): Audio filename read
         path (str): path to image storage location on app backend server
         sr (int, optional): sampling rate. Defaults to 8000.
 

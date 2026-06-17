@@ -27,7 +27,7 @@ def login():
                 login_user(user, remember=True)
                 current_app.logger.info("User Logged in successfully!")
 
-                return redirect(url_for("auth.home"))
+                return redirect(url_for("misc.home"))
             else:
                 flash("Incorrect password, try again.", category="error")
                 current_app.logger.info("Incorrect password")
@@ -86,7 +86,7 @@ def sign_up():
             flash("Account created!", category="success")
             current_app.logger.info("Account created!")
 
-            return redirect(url_for("auth.home"))
+            return redirect(url_for("misc.home"))
 
     return render_template("sign_up.html", user=current_user)
 
@@ -98,35 +98,3 @@ def logout():
     logout_user()
     current_app.logger.info("User %s logged out.", current_user)
     return redirect(url_for("auth.login"))
-
-
-@auth.route("/profile", methods=["GET"])
-@login_required
-def profile():
-    current_app.logger.info("Redirected to profile page.")
-    return render_template("profile.html", user=current_user)
-
-
-@auth.route("/home")
-@auth.route("/")
-def home():
-    """Makes a digit prediction by uploading a wav file using the audio MNIST ML model
-
-    Returns:
-        [render_template]: Render template object with prediction variable (int)
-    """
-    if not current_user.is_authenticated:
-        flash("Please log in to access full app functionality !", category="error")
-        return render_template("home.html", user=None)
-    else:
-        return render_template("home.html", user=current_user)
-
-
-@auth.route("/about")
-def about():
-    current_app.logger.info("Redirected to about page.")
-
-    if not current_user.is_authenticated:
-        return render_template("about.html", user=None)
-    else:
-        return render_template("about.html", user=current_user)
