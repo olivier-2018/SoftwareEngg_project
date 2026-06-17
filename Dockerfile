@@ -31,4 +31,4 @@ USER appuser
 EXPOSE 5003
 
 ENV PATH="/app/.venv/bin:$PATH"
-CMD ["gunicorn", "run:app", "--bind", "0.0.0.0:5003", "--preload"]
+CMD ["gunicorn", "run:app", "--bind", "0.0.0.0:5003", "--preload", "--timeout", "120"]

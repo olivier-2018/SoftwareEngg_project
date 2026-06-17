@@ -22,9 +22,9 @@
 - Use multiple digit audio prediction for user login.
 - Use augmented / additional data to improve generalization on model prediction (male/female voices, accents, etc).
 
-### Getting started (Local Development):
+### Getting started:
 
-#### Environment Setup
+#### Prerequisites
 
 This project uses `uv` for fast, reliable dependency management. 
 
@@ -35,15 +35,12 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # On Windows using PowerShell:
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-
-# Or via pip (any platform):
-pip install uv
 ```
 
-**Clone and set up the project:**
+#### Clone and set up the project:
 ```sh
 # Clone the repository:
-git clone git@github.com:olivier-2018/SoftwareEngg_project.git  --branch development
+git clone git@github.com:olivier-2018/SoftwareEngg_project.git 
 cd SoftwareEngg_project
 
 # Sync dependencies using uv (creates/updates .venv automatically):
@@ -62,12 +59,46 @@ cp .env.example .env
 #### Running the Development Server
 ```sh
 # The .env file automatically loads Flask configuration
-flask run --port 5003
+flask run 
 ```
 
 The app will start on **http://localhost:5003** with **live reload enabled** (`FLASK_DEBUG=1` in .env) — changes to templates, static files, and Python code automatically reload in the browser.
 
-### Docker & VPS Deployment
+### Developments
+
+#### Testing:
+- Unit and functional testing functions are located in the "tests" folder.
+- Testing is automatic as part of the CI/CD pipeline but can also be launched manually using the command:
+```sh
+pytest -vrxXs
+```
+
+#### Pre-commit
+
+Pre‑commit runs a set of hooks every time you run git commit.   
+These hooks can:  
+- auto‑format code  
+- lint Python and JS
+- check for syntax errors
+- block commits with secrets
+- validate JSON/YAML
+- enforce consistent whitespace
+
+Pre-commit can be run manually before a *git commit*,  
+```sh
+pre-commit run
+# this will automateically read the *.pre-commit-config.yaml* cfg file
+```
+
+or automatically with each *git commit* using hooks.  
+Set up hooks with  
+```sh
+pre-commit install
+pre-commit run --all-files
+```
+
+
+### Deployment on VPS
 
 To deploy on a self-hosted VPS using Docker and Docker Compose:
 
@@ -93,12 +124,7 @@ docker compose up -d
 
 **Important:** On a VPS, the app requires **HTTPS** for the microphone recording feature (`getUserMedia` requires a secure context). Use a reverse proxy (nginx, Caddy, etc.) with Let's Encrypt certificates, or AWS load balancer, etc., to terminate TLS and forward to port 5003.
 
- ### Testing:
-- Unit and functional testing functions are located in the "tests" folder.
-- Testing is automatic as part of the CI/CD pipeline but can also be launched manually using the command:
-```sh
-pytest -vrxXs
-```
+
 
  ### Illustrations:
  #### Welcome screen
